@@ -9,6 +9,7 @@ logging.basicConfig(filename='last_run.log',level=logging.DEBUG,filemode='w')
 def main(standard_screen):
     curses.curs_set(False)
     standard_screen.clear()
+    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
 
     logging.debug("started")
 
