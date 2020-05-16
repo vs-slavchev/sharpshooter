@@ -12,10 +12,16 @@ class CursedWindow:
         self.width = width
         self.hegith = height
         self.text_content = []
-        self.selected_line_i = 1
+        self.selected_line_i = 0
 
     def set_text_content(self, text_content):
         self.text_content = text_content
+
+    def set_selected_line_i(self, line_i):
+        self.selected_line_i = line_i
+
+    def get_selected_line_i(self):
+        return self.selected_line_i
 
     def render_line(self, y, is_selected = False):
         text = self.text_content[y]
@@ -23,7 +29,7 @@ class CursedWindow:
         text_attribute = curses.A_BOLD
 
         # hidden files are normal font
-        if chr(text[0]) == '.':
+        if chr(text[0] and not is_selected) == '.':
             text_attribute = curses.A_NORMAL
 
         # folders are also colored
