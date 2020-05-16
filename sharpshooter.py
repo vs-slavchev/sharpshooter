@@ -12,8 +12,11 @@ def main(standard_screen):
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
 
     logging.debug("started")
+    screen_height, screen_width = standard_screen.getmaxyx()
+    logging.debug("screen size WxH: {}".format(screen_width, screen_height))
+    window_width = screen_width // 3
 
-    main_window = cursed_window.CursedWindow(2, 1, 25, 20)
+    main_window = cursed_window.CursedWindow(2, 1, window_width, 20)
     main_window.set_text_content(terminal.get_ls())
     main_window.render()
 

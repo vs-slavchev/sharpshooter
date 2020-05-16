@@ -34,7 +34,7 @@ class CursedWindow:
         if is_selected:
             text_attribute = text_attribute | curses.A_REVERSE
     
-        self.window.addstr(y, 0, text, text_attribute)
+        self.window.addnstr(y, 0, text, self.width, text_attribute)
         # fill the rest of the line after the last addition
         if is_selected:
             self.window.chgat(-1, text_attribute)
