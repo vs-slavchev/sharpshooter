@@ -1,0 +1,2 @@
+# sharpshooter
+Minimal file manager
