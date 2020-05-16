@@ -3,6 +3,7 @@ import logging
 import subprocess
 
 import cursed_window
+import terminal
 
 logging.basicConfig(filename='last_run.log',level=logging.DEBUG,filemode='w')
 
@@ -25,6 +26,8 @@ def main(standard_screen):
 
     standard_screen.refresh()
     main_window.refresh()
+
     standard_screen.getkey()
+    terminal.open()
 
 curses.wrapper(main)
