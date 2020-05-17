@@ -38,10 +38,12 @@ def main(standard_screen):
 
         left_window.set_text_content(terminal.get_ls(".."))
         left_window.render()
+        left_window.render_selected_line()
 
         cwd_lines = terminal.get_ls(cwd)
         main_window.set_text_content(cwd_lines)
         main_window.render()
+        main_window.render_selected_line()
 
         child_path = cwd_lines[main_window.get_selected_line_i()]
         right_window.set_text_content(terminal.get_ls(child_path))
