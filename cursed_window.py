@@ -1,4 +1,5 @@
 import curses
+import logging
 
 class CursedWindow:
 
@@ -10,7 +11,7 @@ class CursedWindow:
         self.x = x
         self.y = y
         self.width = width
-        self.hegith = height
+        self.height = height
         self.text_content = []
         self.selected_line_i = 0
 
@@ -40,12 +41,18 @@ class CursedWindow:
         if is_selected:
             text_attribute = text_attribute | curses.A_REVERSE
     
-        self.window.addnstr(y, 0, text, self.width, text_attribute)
+        try:
+            self.window.addnstr(y, 0, text, self.width, text_attribute)
+        except curses.error:
+            logging.error("cannot add str y={} text=\"{}\"".format(y, text))
+
         # fill the rest of the line after the last addition
         if is_selected:
             self.window.chgat(-1, text_attribute)
     def render(self):
-        for line_i in range(len(self.text_content)):
+        number_lines = len(self.text_content)
+        max_line_to_render = min(number_lines, self.height)
+        for line_i in range(max_line_to_render):
             self.render_line(line_i)
 
         self.render_line(self.selected_line_i , is_selected=True)

@@ -4,9 +4,9 @@ import logging
 def get_ls(directory="."):
     cwd_ls = subprocess.check_output(
         ["ls", directory, "-a", "--w=1", "-F", "--group-directories-first"])
-    logging.debug('ls output: {}'.format(cwd_ls))
     all_lines = cwd_ls.split()
     lines = all_lines[2:]
+    logging.debug('ls output: {} items'.format(len(lines)))
     return lines
 
 def open():
