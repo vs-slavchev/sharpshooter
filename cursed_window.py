@@ -18,13 +18,21 @@ class CursedWindow:
     def set_text_content(self, text_content):
         self.text_content = text_content
 
-    def set_selected_line_i(self, line_i):
-        self.selected_line_i = line_i
+    def increment_selected_line_i(self):
+        self.selected_line_i = self.selected_line_i + 1
+        logging.debug("incremented selected_line: {}".format(self.selected_line_i))
+
+    def decrement_selected_line_i(self):
+        self.selected_line_i = self.selected_line_i - 1
+        logging.debug("decremented selected_line: {}".format(self.selected_line_i))
 
     def get_selected_line_i(self):
         return self.selected_line_i
 
     def render_line(self, y, is_selected = False):
+        if is_selected and y > 0:
+            logging.info("text_content elements: {}".format(len(self.text_content)))
+            logging.info("selected y: {}".format(y))
         text = self.text_content[y]
         # ordinary files are bold
         text_attribute = curses.A_BOLD
@@ -49,6 +57,7 @@ class CursedWindow:
         # fill the rest of the line after the last addition
         if is_selected:
             self.window.chgat(-1, text_attribute)
+
     def render(self):
         number_lines = len(self.text_content)
         max_line_to_render = min(number_lines, self.height)

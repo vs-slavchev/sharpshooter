@@ -1,0 +1,5 @@
+[keys]
+up=e
+down=n
+left=k
+right=i
