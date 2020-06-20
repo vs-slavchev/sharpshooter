@@ -3,6 +3,7 @@ import logging
 import configparser
 from pathlib import Path
 
+
 class InputKeys:
     def __init__(self):
         cwd = Path.cwd()

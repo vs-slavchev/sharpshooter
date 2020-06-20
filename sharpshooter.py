@@ -2,62 +2,51 @@ import curses
 import logging
 from pathlib import Path
 
-from cursed_window import CursedWindow
 import terminal
 from input_keys import InputKeys
-
+from pane_manager import PaneManager
 
 
 def main(standard_screen):
     curses.curs_set(False)
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
 
-    cwd = str(Path.cwd())
-    log_filename = "{}/last_run.log".format(cwd)
-    logging.basicConfig(filename=log_filename,level=logging.DEBUG,filemode='w')
-
-    logging.info("sharpshooter started")
-    logging.info("curses version: {}".format(str(curses.version.decode())))
-
+    set_up_logging()
     in_keys = InputKeys()
+    pane_manager = PaneManager(standard_screen)
 
-
-    screen_height, screen_width = standard_screen.getmaxyx()
-    logging.debug("screen size WxH: {}x{}".format(screen_width, screen_height))
-    window_width = screen_width // 3
-    window_y = 1
-    window_height = screen_height - window_y
-
-    left_window = CursedWindow(1, window_y, window_width -1, window_height)
-    main_window = CursedWindow(window_width, window_y, window_width, window_height)
-    right_window = CursedWindow(window_width*2, window_y, window_width, window_height)
+    cwd = str(Path.cwd())
+    left_selected_line_i = 0
+    main_selected_line_i = 0
 
     is_working = True
     while is_working:
         standard_screen.clear()
+        left_lines = terminal.get_ls("..")
+        main_lines = terminal.get_ls(cwd)
+        child_path = main_lines[main_selected_line_i]
+        right_lines = terminal.get_ls(child_path)
 
-        left_window.set_text_content(terminal.get_ls(".."))
-        left_window.render()
-        left_window.render_selected_line()
-
-        cwd_lines = terminal.get_ls(cwd)
-        main_window.set_text_content(cwd_lines)
-        main_window.render()
-        main_window.render_selected_line()
-
-        child_path = cwd_lines[main_window.get_selected_line_i()]
-        right_window.set_text_content(terminal.get_ls(child_path))
-        right_window.render()
+        pane_manager.render_panes(left_lines, main_lines, right_lines,
+                                  left_selected_line_i, main_selected_line_i)
 
         standard_screen.refresh()
-        left_window.refresh()
-        main_window.refresh()
-        right_window.refresh()
+        pane_manager.refresh_panes()
 
         input_key = standard_screen.getkey()
         logging.info("input: {}".format(input_key))
         if input_key == in_keys.down_key:
-            main_window.increment_selected_line_i()
+            main_selected_line_i = (main_selected_line_i + 1) % len(main_lines)
+        elif input_key == in_keys.up_key:
+            main_selected_line_i = (main_selected_line_i - 1) % len(main_lines)
         #terminal.open()
+
+
+def set_up_logging():
+    log_filename = "{}/last_run.log".format(Path.cwd())
+    logging.basicConfig(filename=log_filename, level=logging.DEBUG, filemode='w')
+    logging.info("sharpshooter started")
+    logging.info("curses version: {}".format(str(curses.version.decode())))
+
 
 curses.wrapper(main)

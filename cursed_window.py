@@ -1,6 +1,7 @@
 import curses
 import logging
 
+
 class CursedWindow:
 
     def __init__(self, x, y, width, height):
@@ -13,21 +14,9 @@ class CursedWindow:
         self.width = width
         self.height = height
         self.text_content = []
-        self.selected_line_i = 0
 
     def set_text_content(self, text_content):
         self.text_content = text_content
-
-    def increment_selected_line_i(self):
-        self.selected_line_i = self.selected_line_i + 1
-        logging.debug("incremented selected_line: {}".format(self.selected_line_i))
-
-    def decrement_selected_line_i(self):
-        self.selected_line_i = self.selected_line_i - 1
-        logging.debug("decremented selected_line: {}".format(self.selected_line_i))
-
-    def get_selected_line_i(self):
-        return self.selected_line_i
 
     def calculate_attributes(self, text):
         # ordinary files are bold
@@ -54,13 +43,16 @@ class CursedWindow:
         text_attribute = self.calculate_attributes(text)
         self.add_string(y, text, text_attribute)
 
-    def render_selected_line(self):
-        text = self.text_content[self.selected_line_i]
+    def render_selected_line(self, selected_index):
+        logging.debug("rendering selected line: {}".format(selected_index))
+        selected_index = selected_index % len(self.text_content)
+
+        text = self.text_content[selected_index]
         text_attribute = self.calculate_attributes(text)
 
         text_attribute = text_attribute | curses.A_REVERSE
 
-        self.add_string(self.selected_line_i, text, text_attribute)
+        self.add_string(selected_index, text, text_attribute)
         # fill the rest of the line after the last addition
         self.window.chgat(-1, text_attribute)
 
