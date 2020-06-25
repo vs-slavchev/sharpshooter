@@ -1,4 +1,3 @@
-import curses
 import logging
 
 from cursed_window import CursedWindow
