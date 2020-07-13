@@ -10,3 +10,5 @@ class InputKeys:
 
         self.up_key = config['keys']['up']
         self.down_key = config['keys']['down']
+        self.left_key = config['keys']['left']
+        self.right_key = config['keys']['right']
