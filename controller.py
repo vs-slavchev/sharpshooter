@@ -58,6 +58,7 @@ class Controller:
         higher_folders = self.cwd.split("/")[:-1]  # drop last element
         self.cwd = "/".join(higher_folders)
         logging.debug("new upper cwd: {}".format(self.cwd))
+        self.main_selected_line_i = self.left_selected_line_i
 
     def down(self, main_lines_length):
         self.main_selected_line_i = (self.main_selected_line_i + 1) % main_lines_length

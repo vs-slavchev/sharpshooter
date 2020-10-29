@@ -6,8 +6,8 @@ def get_ls(directory="."):
     cwd_ls = subprocess.check_output(
         ["ls", directory, "-a", "--w=1", "-F", "--group-directories-first"])
     all_lines = cwd_ls.split()
-    lines = all_lines[2:] # drop first 2 lines which are not folders
-    logging.debug('ls output: {} items'.format(len(lines)))
+    lines = all_lines[2:]  # drop first 2 lines which are not folders
+    logging.debug('ls {} output: {} items'.format(directory, len(lines)))
     return lines
 
 
