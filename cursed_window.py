@@ -23,11 +23,11 @@ class CursedWindow:
         text_attribute = curses.A_BOLD
 
         # hidden files are normal font
-        if chr(text[0]) == '.':
+        if text[0] == '.':
             text_attribute = curses.A_NORMAL
 
         # folders are also colored
-        if chr(text[-1]) == '/':
+        if text[-1] == '/':
             text_attribute = text_attribute | curses.color_pair(2)
 
         return text_attribute

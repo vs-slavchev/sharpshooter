@@ -24,15 +24,15 @@ class Controller:
         is_working = True
         while is_working:
             self.standard_screen.clear()
-            left_lines = terminal.get_ls("..")
+            left_lines = terminal.get_ls(self.getParentDirectory(self.cwd))
             main_lines = terminal.get_ls(self.cwd)
-            child_path = main_lines[self.main_selected_line_i]
+            child_path = self.cwd + "/" + main_lines[self.main_selected_line_i]
             right_lines = terminal.get_ls(child_path)
 
             parent_folder = self.cwd.split("/")[-1] + "/"
             logging.info("parent folder: {}".format(parent_folder))
             logging.info("left lines: {}".format(left_lines))
-            self.left_selected_line_i = left_lines.index(parent_folder.encode())
+            self.left_selected_line_i = left_lines.index(parent_folder)
 
             self.pane_manager.render_panes(
                 left_lines,
@@ -51,12 +51,12 @@ class Controller:
             elif input_key == self.input_keys.up_key:
                 self.up(len(main_lines))
             elif input_key == self.input_keys.left_key:
-                self.set_cwd_to_parent_directory()
+                if len(self.cwd.split("/")) > 3: # first elem is empty because string starts with '/'
+                    self.set_cwd_to_parent_directory()
             # terminal.open()
 
     def set_cwd_to_parent_directory(self):
-        higher_folders = self.cwd.split("/")[:-1]  # drop last element
-        self.cwd = "/".join(higher_folders)
+        self.cwd = self.getParentDirectory(self.cwd)
         logging.debug("new upper cwd: {}".format(self.cwd))
         self.main_selected_line_i = self.left_selected_line_i
 
@@ -65,3 +65,7 @@ class Controller:
 
     def up(self, main_lines_length):
         self.main_selected_line_i = (self.main_selected_line_i - 1) % main_lines_length
+
+    def getParentDirectory(self, dir):
+        higher_folders = dir.split("/")[:-1]  # drop last element
+        return "/".join(higher_folders)
