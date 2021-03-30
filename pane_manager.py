@@ -19,7 +19,8 @@ class PaneManager:
                      left_selected, main_selected):
         self.left_window.set_text_content(left_lines)
         self.left_window.render()
-        self.left_window.render_selected_line(left_selected)
+        if len(left_lines) > 0:
+            self.left_window.render_selected_line(left_selected)
 
         self.main_window.set_text_content(main_lines)
         self.main_window.render()

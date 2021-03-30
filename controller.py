@@ -28,15 +28,18 @@ class Controller:
         is_working = True
         while is_working:
             self.standard_screen.clear()
-            self.parent_lines = terminal.get_ls(self.parent_directory(self.cwd))
+
+            self.parent_lines = terminal.get_ls(self.parent_directory())  # fix to empty
             self.main_lines = terminal.get_ls(self.cwd)
             child_path = self.cwd + self.currently_selected_item()
             self.child_lines = terminal.get_ls(child_path)
 
-            parent_folder = self.to_path_elements(self.cwd)[-1] + "/"
-            logging.info("parent folder: {}".format(parent_folder))
-            logging.info("left lines: {}".format(self.parent_lines))
-            self.left_selected_line_i = self.parent_lines.index(parent_folder)
+            if len(self.get_higher_path_elements()) == 0:
+                self.parent_lines = []
+            else:
+                parent_folder = self.to_path_elements()[-1] + "/"
+                logging.info("parent folder: {}".format(parent_folder))
+                self.left_selected_line_i = self.parent_lines.index(parent_folder)
             self.pane_manager.render_panes(
                 self.parent_lines,
                 self.main_lines,
@@ -60,14 +63,15 @@ class Controller:
             # terminal.open()
 
     def open_parent(self):
-        if len(self.cwd.split("/")) > 3:  # first elem is empty because string starts with '/'
+        there_is_some_parent = len(self.to_path_elements()) > 0
+        if there_is_some_parent:
             self.set_cwd_to_parent_directory()
 
     def currently_selected_item(self):
         return self.main_lines[self.main_selected_line_i]
 
     def set_cwd_to_parent_directory(self):
-        self.cwd = self.parent_directory(self.cwd)
+        self.cwd = self.parent_directory()
         logging.debug("new upper cwd: {}".format(self.cwd))
         self.main_selected_line_i = self.left_selected_line_i
 
@@ -83,12 +87,19 @@ class Controller:
             self.main_selected_line_i = 0
             self.cwd = child_path
 
-    def parent_directory(self, path):
-        only_path_elements = self.to_path_elements(path)
-        higher_path_elements = only_path_elements[:-1]  # drop last path element
-        return "/" + "/".join(higher_path_elements) + "/"
+    def parent_directory(self):
+        higher_path_elements = self.get_higher_path_elements()
+        if len(higher_path_elements) > 0:
+            return "/" + "/".join(higher_path_elements) + "/"
+        else:
+            return "/"
 
-    def to_path_elements(self, path):
-        higher_folders = path.split("/")
+    def get_higher_path_elements(self):
+        only_path_elements = self.to_path_elements()
+        higher_path_elements = only_path_elements[:-1]  # drop last path element
+        return higher_path_elements
+
+    def to_path_elements(self):
+        higher_folders = self.cwd.split("/")
         only_path_elements = list(filter(lambda path_elem: len(path_elem) > 0, higher_folders))
         return only_path_elements
