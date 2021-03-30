@@ -10,5 +10,5 @@ class InputKeys:
 
         self.up_key = config['keys']['up']
         self.down_key = config['keys']['down']
-        self.left_key = config['keys']['left']
-        self.right_key = config['keys']['right']
+        self.open_parent_key = config['keys']['open_parent']
+        self.open_child_key = config['keys']['open_child']
