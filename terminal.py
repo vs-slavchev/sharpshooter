@@ -4,8 +4,14 @@ import logging
 
 def get_ls(directory="."):
     logging.debug('will check ls for: {}'.format(directory))
-    cwd_ls = subprocess.check_output(
-        ["ls", directory, "-a", "--w=1", "-F", "--group-directories-first"])
+    cwd_ls = ""
+    try:
+        cwd_ls = subprocess.check_output(
+            ["ls", directory, "-a", "--w=1", "-F", "--group-directories-first"])
+    except subprocess.CalledProcessError as result_error:
+        logging.warning('error when trying to ls a folder: {}'.format(result_error))
+        return []
+
     all_lines = list(map(lambda s: s.decode("utf-8"), cwd_ls.splitlines()))
     lines = all_lines[2:]  # drop first 2 lines which are not folders
     logging.debug('ls {} output: {} items'.format(directory, len(lines)))
