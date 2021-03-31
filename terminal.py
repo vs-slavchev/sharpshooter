@@ -24,10 +24,10 @@ def get_ls(directory="."):
     return lines
 
 
-def open():
+def open(directory_to_open_in):
     # try different terminals until one of them works
     terminal_commands = [
-        ["exo-open", "--working-directory", "/Repos", "--launch", "TerminalEmulator"],
+        ["exo-open", "--working-directory", directory_to_open_in, "--launch", "TerminalEmulator"],
         ["x-terminal-emulator"],
         ["urxvt"]
     ]

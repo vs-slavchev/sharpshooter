@@ -4,3 +4,4 @@ down=n
 open_parent=k
 open_child=i
 quit=q
+open_terminal=t

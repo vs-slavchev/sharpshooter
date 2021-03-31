@@ -13,3 +13,4 @@ class InputKeys:
         self.open_parent_key = config['keys']['open_parent']
         self.open_child_key = config['keys']['open_child']
         self.quit_key = config['keys']['quit']
+        self.open_terminal_key = config['keys']['open_terminal']

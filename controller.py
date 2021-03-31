@@ -66,7 +66,8 @@ class Controller:
                 self.open_child(child_path)
             elif input_key == self.input_keys.quit_key:
                 is_working = False
-            # terminal.open()
+            elif input_key == self.input_keys.open_terminal_key:
+                terminal.open(self.cwd)
 
     def open_parent(self):
         there_is_some_parent = len(self.to_path_elements()) > 0
