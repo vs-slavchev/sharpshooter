@@ -34,6 +34,6 @@ def open(directory_to_open_in):
     for command_array in terminal_commands:
         try:
             subprocess.call(command_array)
-            break
+            break  # stop trying others on success
         except OSError:
             logging.warning("terminal not found: {}".format(command_array))

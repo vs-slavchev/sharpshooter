@@ -15,8 +15,9 @@ class PaneManager:
         self.main_window = CursedWindow(window_width, window_y, window_width, window_height)
         self.right_window = CursedWindow(window_width * 2, window_y, window_width, window_height)
 
-    def render_panes(self, left_lines, main_lines, right_lines,
-                     left_selected, main_selected):
+    def render_panes(self, renderable_content):
+        left_lines, main_lines, right_lines, left_selected, main_selected = renderable_content
+
         self.left_window.set_text_content(left_lines)
         self.left_window.render()
         if len(left_lines) > 0:
