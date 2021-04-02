@@ -73,6 +73,9 @@ class Content:
         only_path_elements = list(filter(lambda path_elem: len(path_elem) > 0, higher_folders))
         return only_path_elements
 
+    def get_child_path(self):
+        return self.child_path
+
     def get_renderable_content(self):
         return self.parent_lines,\
                self.main_lines,\

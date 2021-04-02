@@ -4,7 +4,6 @@ import logging
 
 def get_ls(directory="."):
     logging.debug('will check ls for: {}'.format(directory))
-    cwd_ls = ""
     try:
         cwd_ls = subprocess.check_output(
             ["ls", directory, "-a", "--w=1", "-F", "--group-directories-first"])
@@ -24,7 +23,7 @@ def get_ls(directory="."):
     return lines
 
 
-def open(directory_to_open_in):
+def open_new_terminal(directory_to_open_in):
     # try different terminals until one of them works
     terminal_commands = [
         ["exo-open", "--working-directory", directory_to_open_in, "--launch", "TerminalEmulator"],
@@ -37,3 +36,8 @@ def open(directory_to_open_in):
             break  # stop trying others on success
         except OSError:
             logging.warning("terminal not found: {}".format(command_array))
+
+
+def open_file(full_path):
+    # subprocess.Popen(['rifle', full_path], close_fds=True)
+    subprocess.Popen(['gnome-terminal', '--execute', 'rifle', full_path], close_fds=True)

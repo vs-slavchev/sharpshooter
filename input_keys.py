@@ -14,3 +14,5 @@ class InputKeys:
         self.open_child_key = config['keys']['open_child']
         self.quit_key = config['keys']['quit']
         self.open_terminal_key = config['keys']['open_terminal']
+        # in order to read strings with chars that need escaping we need to encode and then decode
+        self.open_file = str(config['keys']['open_file']).encode('latin1').decode('unicode_escape')

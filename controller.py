@@ -45,4 +45,6 @@ class Controller:
         elif input_key == self.input_keys.quit_key:
             self.is_working = False
         elif input_key == self.input_keys.open_terminal_key:
-            terminal.open(self.cwd)
+            terminal.open_new_terminal(self.cwd)
+        elif input_key == self.input_keys.open_file:
+            terminal.open_file(self.content.get_child_path())
