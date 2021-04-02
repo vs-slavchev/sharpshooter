@@ -18,20 +18,16 @@ class PaneManager:
     def render_panes(self, renderable_content):
         left_lines, main_lines, right_lines, left_selected, main_selected = renderable_content
 
-        self.left_window.set_text_content(left_lines)
-        self.left_window.render()
-        if len(left_lines) > 0:
-            self.left_window.render_selected_line(left_selected)
-
-        self.main_window.set_text_content(main_lines)
-        self.main_window.render()
-        if len(main_lines) > 0:
-            self.main_window.render_selected_line(main_selected)
-
-        self.right_window.set_text_content(right_lines)
-        self.right_window.render()
+        self.left_window.render(left_lines, left_selected)
+        self.main_window.render(main_lines, main_selected)
+        self.right_window.render(right_lines)
 
     def refresh_panes(self):
         self.left_window.refresh()
         self.main_window.refresh()
         self.right_window.refresh()
+
+    def clear_panes(self):
+        self.left_window.clear()
+        self.main_window.clear()
+        self.right_window.clear()

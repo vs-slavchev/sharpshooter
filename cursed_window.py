@@ -8,15 +8,13 @@ class CursedWindow:
         """
         0,0 is top-left
         """
-        self.window =  curses.newwin(height, width, y, x)
+        self.window = curses.newwin(height, width, y, x)
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.text_content = []
-
-    def set_text_content(self, text_content):
-        self.text_content = text_content
+        self.line_selected_i = 0
 
     def calculate_attributes(self, text):
         # ordinary files are bold
@@ -33,6 +31,7 @@ class CursedWindow:
         return text_attribute
 
     def add_string(self, y, text, text_attribute):
+        text = " " + text
         try:
             self.window.addnstr(y, 0, text, self.width, text_attribute)
         except curses.error:
@@ -43,9 +42,12 @@ class CursedWindow:
         text_attribute = self.calculate_attributes(text)
         self.add_string(y, text, text_attribute)
 
-    def render_selected_line(self, selected_index):
-        logging.debug("rendering selected line: {}".format(selected_index))
-        selected_index = selected_index % len(self.text_content)
+    def render_selected_line(self):
+        logging.debug("rendering selected line: {}".format(self.line_selected_i))
+        if self.line_selected_i < 0:
+            return
+
+        selected_index = self.line_selected_i % len(self.text_content)
 
         text = self.text_content[selected_index]
         text_attribute = self.calculate_attributes(text)
@@ -56,13 +58,23 @@ class CursedWindow:
         # fill the rest of the line after the last addition
         self.window.chgat(-1, text_attribute)
 
-    def render(self):
+    def render(self, text_content, line_selected_i=-1):
+        self.text_content = text_content
+        self.line_selected_i = line_selected_i
+
         number_lines = len(self.text_content)
         max_line_to_render = min(number_lines, self.height)
         for line_i in range(max_line_to_render):
-            self.render_line(line_i)
+            if line_i != self.line_selected_i:
+                self.render_line(line_i)
+
+        if number_lines > 0:
+            self.render_selected_line()
 
     def refresh(self):
         self.window.noutrefresh()
         curses.doupdate()
+
+    def clear(self):
+        self.window.clear()
 

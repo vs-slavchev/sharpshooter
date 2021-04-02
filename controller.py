@@ -21,6 +21,7 @@ class Controller:
     def update(self):
         while self.is_working:
             self.standard_screen.clear()
+            self.pane_manager.clear_panes()
 
             self.content.recalculate_content()
 
