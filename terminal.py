@@ -39,5 +39,15 @@ def open_new_terminal(directory_to_open_in):
 
 
 def open_file(full_path):
-    # subprocess.Popen(['rifle', full_path], close_fds=True)
-    subprocess.Popen(['gnome-terminal', '--execute', 'rifle', full_path], close_fds=True)
+    # try different terminals until one of them works
+    terminal_commands = [
+        ['gnome-terminal', '--execute', 'rifle', full_path],
+        ['xterm', '-e', 'rifle', full_path],
+        ['rxvt', '-e', 'rifle', full_path],
+    ]
+    for command_array in terminal_commands:
+        try:
+            subprocess.Popen(command_array, close_fds=True)
+            break  # stop trying others on success
+        except OSError:
+            logging.warning("terminal not found: {}".format(command_array))
