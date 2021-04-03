@@ -50,6 +50,7 @@ class Content:
         self.main_pane_selected_line_i = (self.main_pane_selected_line_i - 1) % len(self.main_lines)
 
     def open_child(self):
+        logging.debug("trying to open child: {}".format(self.child_path))
         child_exists = self.child_path != ""
         selected_is_folder = child_exists and self.currently_selected_item().endswith("/")
         if selected_is_folder:

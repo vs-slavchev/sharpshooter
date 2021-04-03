@@ -35,7 +35,7 @@ class CursedWindow:
         try:
             self.window.addnstr(y, 0, text, self.width, text_attribute)
         except curses.error:
-            logging.error("cannot add str y={} text=\"{}\"".format(y, text))
+            logging.error("cannot add str text=\"{}\" at y={} ".format(text, y))
 
     def render_line(self, y):
         text = self.text_content[y]
@@ -43,7 +43,7 @@ class CursedWindow:
         self.add_string(y, text, text_attribute)
 
     def render_selected_line(self):
-        logging.debug("rendering selected line: {}".format(self.line_selected_i))
+        logging.debug("rendering selected line at index: {}".format(self.line_selected_i))
         if self.line_selected_i < 0:
             return
 
@@ -63,6 +63,7 @@ class CursedWindow:
         self.line_selected_i = line_selected_i
 
         number_lines = len(self.text_content)
+        logging.debug("rendering {} lines".format(number_lines))
         max_line_to_render = min(number_lines, self.height)
         for line_i in range(max_line_to_render):
             if line_i != self.line_selected_i:

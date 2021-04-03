@@ -50,4 +50,4 @@ def open_file(full_path):
             subprocess.Popen(command_array, close_fds=True)
             break  # stop trying others on success
         except OSError:
-            logging.warning("terminal not found: {}".format(command_array))
+            logging.warning("could not execute open file command: {}".format(command_array))
