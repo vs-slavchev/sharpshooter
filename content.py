@@ -83,3 +83,6 @@ class Content:
                self.child_lines,\
                self.parent_pane_selected_line_i,\
                self.main_pane_selected_line_i
+
+    def get_cwd(self):
+        return self.cwd

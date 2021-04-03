@@ -25,6 +25,7 @@ class Controller:
 
             self.content.recalculate_content()
 
+            self.pane_manager.render_top_line(self.content.get_cwd())
             self.pane_manager.render_panes(self.content.get_renderable_content())
 
             self.standard_screen.refresh()
