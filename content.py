@@ -1,7 +1,7 @@
 import logging
 
 from pathlib import Path
-import terminal
+from terminal import Terminal
 
 
 class Content:
@@ -15,14 +15,16 @@ class Content:
         self.parent_pane_selected_line_i = 0
         self.main_pane_selected_line_i = 0
 
+        self.terminal = Terminal()
+
     def recalculate_content(self):
-        self.parent_lines = terminal.get_ls(self.parent_directory())
-        self.main_lines = terminal.get_ls(self.cwd)
+        self.parent_lines = self.terminal.get_ls(self.parent_directory())
+        self.main_lines = self.terminal.get_ls(self.cwd)
         self.child_path = ""
         self.child_lines = []
         if len(self.main_lines) > 0:
             self.child_path = self.cwd + self.currently_selected_item()
-            self.child_lines = terminal.get_ls(self.child_path)
+            self.child_lines = self.terminal.get_ls(self.child_path)
         if self.cwd == "/":
             self.parent_lines = []
         else:
@@ -86,3 +88,6 @@ class Content:
 
     def get_cwd(self):
         return self.cwd
+
+    def toggle_show_hidden(self):
+        self.terminal.toggle_show_hidden()
