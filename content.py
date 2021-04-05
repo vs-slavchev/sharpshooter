@@ -33,6 +33,7 @@ class Content:
             self.parent_pane_selected_line_i = self.parent_lines.index(parent_folder)
 
     def open_parent(self):
+        logging.info("action: open_parent")
         there_is_some_parent = len(self.to_path_elements()) > 0
         if there_is_some_parent:
             self.set_cwd_to_parent_directory()
@@ -46,13 +47,15 @@ class Content:
         self.main_pane_selected_line_i = self.parent_pane_selected_line_i
 
     def down(self):
+        logging.info("action: down")
         self.main_pane_selected_line_i = (self.main_pane_selected_line_i + 1) % len(self.main_lines)
 
     def up(self):
+        logging.info("action: up")
         self.main_pane_selected_line_i = (self.main_pane_selected_line_i - 1) % len(self.main_lines)
 
     def open_child(self):
-        logging.debug("trying to open child: {}".format(self.child_path))
+        logging.debug("action: open_child: {}".format(self.child_path))
         child_exists = self.child_path != ""
         selected_is_folder = child_exists and self.currently_selected_item().endswith("/")
         if selected_is_folder:
