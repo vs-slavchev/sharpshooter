@@ -24,7 +24,7 @@ class PaneManager:
 
         self.left_window.render(left_lines, left_selected)
         self.main_window.render(main_lines, main_selected)
-        self.right_window.render(right_lines)
+        self.right_window.render_without_selected(right_lines)
 
     def render_top_line(self, cwd_path):
         self.top_line.addnstr(0, 0, cwd_path, self.top_line_width, curses.A_BOLD)
