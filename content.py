@@ -22,9 +22,31 @@ class Content:
 
     def toggle_show_hidden(self):
         self.show_hidden = not self.show_hidden
+
+        if not self.currently_selected_item().startswith("."):
+            selected_item = self.currently_selected_item()
+            self.main_lines = self.query_pane_content(self.cwd)
+            self.main_pane_selected_line_i = self.main_lines.index(selected_item)
+        else:
+            # hiding a hidden file
+            from_selected_to_start = list(range(self.main_pane_selected_line_i - 1, 0, -1))
+            from_selected_to_end = list(range(self.main_pane_selected_line_i + 1, len(self.main_lines) - 1, 1))
+            indices_to_iterate = from_selected_to_start + from_selected_to_end
+            closest_visible_item = ""
+            for item_i in indices_to_iterate:
+                item = self.main_lines[item_i]
+                if not self.is_hidden(item):
+                    closest_visible_item = item
+                    break
+            self.main_lines = self.query_pane_content(self.cwd)
+            self.main_pane_selected_line_i = self.main_lines.index(closest_visible_item)
+
         value_to_write = str(self.show_hidden)
         self.config.set('settings', 'show_hidden', value_to_write)
         self.config_manager.save_config()
+
+    def is_hidden(self, line_content):
+        return line_content.startswith(".")
 
     def query_pane_content(self, path_to_folder):
         pane_content = terminal.get_ls(path_to_folder)
@@ -54,6 +76,8 @@ class Content:
             self.set_cwd_to_parent_directory()
 
     def currently_selected_item(self):
+        if self.main_pane_selected_line_i >= len(self.main_lines):
+            self.main_pane_selected_line_i = len(self.main_lines) - 1
         return self.main_lines[self.main_pane_selected_line_i]
 
     def set_cwd_to_parent_directory(self):

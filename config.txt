@@ -9,5 +9,5 @@ open_file = \n
 toggle_show_hidden = h
 
 [settings]
-show_hidden = False
+show_hidden = True
 
