@@ -1,9 +1,13 @@
 [keys]
-up=e
-down=n
-open_parent=k
-open_child=i
-quit=q
-open_terminal=t
-open_file=\n
-toggle_show_hidden=h
+up = e
+down = n
+open_parent = k
+open_child = i
+quit = q
+open_terminal = t
+open_file = \n
+toggle_show_hidden = h
+
+[settings]
+show_hidden = False
+

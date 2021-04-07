@@ -1,13 +1,20 @@
 import subprocess
 import logging
 
+from config_manager import ConfigManager
+
 
 class Terminal:
     def __init__(self):
-        self.show_hidden = True
+        self.config_manager = ConfigManager()
+        self.config = self.config_manager.get_config()
+        self.show_hidden = self.config['settings'].getboolean('show_hidden')
 
     def toggle_show_hidden(self):
         self.show_hidden = not self.show_hidden
+        value_to_write = str(self.show_hidden)
+        self.config.set('settings', 'show_hidden', value_to_write)
+        self.config_manager.save_config()
 
     def get_ls(self, directory="."):
         logging.debug('will check ls for: {}'.format(directory))
