@@ -1,7 +1,8 @@
 import logging
 
+import terminal
 from pathlib import Path
-from terminal import Terminal
+from config_manager import ConfigManager
 
 
 class Content:
@@ -15,16 +16,30 @@ class Content:
         self.parent_pane_selected_line_i = 0
         self.main_pane_selected_line_i = 0
 
-        self.terminal = Terminal()
+        self.config_manager = ConfigManager()
+        self.config = self.config_manager.get_config()
+        self.show_hidden = self.config['settings'].getboolean('show_hidden')
+
+    def toggle_show_hidden(self):
+        self.show_hidden = not self.show_hidden
+        value_to_write = str(self.show_hidden)
+        self.config.set('settings', 'show_hidden', value_to_write)
+        self.config_manager.save_config()
+
+    def query_pane_content(self, path_to_folder):
+        pane_content = terminal.get_ls(path_to_folder)
+        if not self.show_hidden:
+            pane_content = list(filter(lambda l: not l.startswith("."), pane_content))
+        return pane_content
 
     def recalculate_content(self):
-        self.parent_lines = self.terminal.get_ls(self.parent_directory())
-        self.main_lines = self.terminal.get_ls(self.cwd)
+        self.parent_lines = self.query_pane_content(self.parent_directory())
+        self.main_lines = self.query_pane_content(self.cwd)
         self.child_path = ""
         self.child_lines = []
         if len(self.main_lines) > 0:
             self.child_path = self.cwd + self.currently_selected_item()
-            self.child_lines = self.terminal.get_ls(self.child_path)
+            self.child_lines = self.query_pane_content(self.child_path)
         if self.cwd == "/":
             self.parent_lines = []
         else:
@@ -91,6 +106,3 @@ class Content:
 
     def get_cwd(self):
         return self.cwd
-
-    def toggle_show_hidden(self):
-        self.terminal.toggle_show_hidden()
