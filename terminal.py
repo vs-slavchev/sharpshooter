@@ -57,6 +57,10 @@ def open_new_terminal(directory_to_open_in):
 
 
 def open_file(full_path):
+    is_folder = full_path.endswith("/")
+    if is_folder:
+        return
+
     # try different terminals until one of them works
     terminal_commands = [
         ['gnome-terminal', '--execute', 'rifle', full_path],
