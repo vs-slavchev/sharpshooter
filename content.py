@@ -21,37 +21,47 @@ class Content:
         self.show_hidden = self.config['settings'].getboolean('show_hidden')
 
     def toggle_show_hidden(self):
+        logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
         self.show_hidden = not self.show_hidden
 
-        if not self.currently_selected_item().startswith("."):
-            selected_item = self.currently_selected_item()
-            self.main_lines = self.query_pane_content(self.cwd)
-            self.main_pane_selected_line_i = self.main_lines.index(selected_item)
+        if not is_hidden(self.currently_selected_item()):
+            self.recalculate_same_selected_line()
         else:
-            # hiding a hidden file
-            from_selected_to_start = list(range(self.main_pane_selected_line_i - 1, 0, -1))
-            from_selected_to_end = list(range(self.main_pane_selected_line_i + 1, len(self.main_lines) - 1, 1))
-            indices_to_iterate = from_selected_to_start + from_selected_to_end
-            closest_visible_item = ""
-            for item_i in indices_to_iterate:
-                item = self.main_lines[item_i]
-                if not self.is_hidden(item):
-                    closest_visible_item = item
-                    break
-            self.main_lines = self.query_pane_content(self.cwd)
-            self.main_pane_selected_line_i = self.main_lines.index(closest_visible_item)
+            self.hide_hidden_item()
 
+        # save change to the config file
         value_to_write = str(self.show_hidden)
         self.config.set('settings', 'show_hidden', value_to_write)
         self.config_manager.save_config()
 
-    def is_hidden(self, line_content):
-        return line_content.startswith(".")
+    # the position of the selected line might change if items before it are hidden, but we want the same item
+    # to be selected after hiding or showing
+    def recalculate_same_selected_line(self):
+        selected_item = self.currently_selected_item()
+        self.main_lines = self.query_pane_content(self.cwd)
+        self.main_pane_selected_line_i = self.main_lines.index(selected_item)
 
+    # hiding a hidden item; only happens when hiding because only then can a hidden item be selected
+    def hide_hidden_item(self):
+        from_selected_to_start = list(range(self.main_pane_selected_line_i - 1, 0, -1))
+        from_selected_to_end = list(range(self.main_pane_selected_line_i + 1, len(self.main_lines) - 1, 1))
+        indices_to_iterate = from_selected_to_start + from_selected_to_end
+        closest_visible_item = ""
+        for item_i in indices_to_iterate:
+            item = self.main_lines[item_i]
+            if not is_hidden(item):
+                closest_visible_item = item
+                break
+        self.main_lines = self.query_pane_content(self.cwd)
+        self.main_pane_selected_line_i = self.main_lines.index(closest_visible_item)
+
+    # returns the lines that represent the files and folders in the path_to_folder
     def query_pane_content(self, path_to_folder):
         pane_content = terminal.get_ls(path_to_folder)
+
         if not self.show_hidden:
-            pane_content = list(filter(lambda l: not l.startswith("."), pane_content))
+            pane_content = list(filter(lambda l: not is_hidden(l), pane_content))
+
         return pane_content
 
     def recalculate_content(self):
@@ -130,3 +140,7 @@ class Content:
 
     def get_cwd(self):
         return self.cwd
+
+
+def is_hidden(line_content):
+    return line_content.startswith(".")
