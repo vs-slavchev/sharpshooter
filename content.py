@@ -27,7 +27,7 @@ class Content:
         if not is_hidden(self.currently_selected_item()):
             self.recalculate_same_selected_line()
         else:
-            self.hide_hidden_item()
+            self.select_closest_to_hidden_item()
 
         # save change to the config file
         value_to_write = str(self.show_hidden)
@@ -42,7 +42,7 @@ class Content:
         self.main_pane_selected_line_i = self.main_lines.index(selected_item)
 
     # hiding a hidden item; only happens when hiding because only then can a hidden item be selected
-    def hide_hidden_item(self):
+    def select_closest_to_hidden_item(self):
         from_selected_to_start = list(range(self.main_pane_selected_line_i - 1, 0, -1))
         from_selected_to_end = list(range(self.main_pane_selected_line_i + 1, len(self.main_lines) - 1, 1))
         indices_to_iterate = from_selected_to_start + from_selected_to_end
@@ -64,8 +64,17 @@ class Content:
 
         return pane_content
 
+    def query_parent_pane_content(self):
+        pane_content = terminal.get_ls(self.parent_directory())
+
+        if not self.show_hidden:
+            selected_parent_item = self.parent_lines[self.parent_pane_selected_line_i]
+            pane_content = list(filter(lambda l: not is_hidden(l) or l == selected_parent_item, pane_content))
+
+        return pane_content
+
     def recalculate_content(self):
-        self.parent_lines = self.query_pane_content(self.parent_directory())
+        self.parent_lines = self.query_parent_pane_content()
         self.main_lines = self.query_pane_content(self.cwd)
         self.child_path = ""
         self.child_lines = []
