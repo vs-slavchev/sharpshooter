@@ -52,3 +52,5 @@ class Controller:
             terminal.open_file(self.content.get_child_path())
         elif input_key == self.input_keys.toggle_show_hidden:
             self.content.toggle_show_hidden()
+        elif input_key == self.input_keys.delete:
+            self.content.delete_selected()

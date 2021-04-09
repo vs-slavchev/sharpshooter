@@ -7,6 +7,7 @@ quit = q
 open_terminal = t
 open_file = \n
 toggle_show_hidden = h
+delete = d
 
 [settings]
 show_hidden = True

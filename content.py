@@ -150,6 +150,9 @@ class Content:
     def get_cwd(self):
         return self.cwd
 
+    def delete_selected(self):
+        terminal.delete(self.child_path)
+
 
 def is_hidden(line_content):
     return line_content.startswith(".")

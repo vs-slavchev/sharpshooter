@@ -56,3 +56,15 @@ def open_file(full_path):
             break  # stop trying others on success
         except OSError:
             logging.warning("could not execute open file command: {}".format(command_array))
+
+
+def delete(path_to_delete):
+    is_folder = path_to_delete.endswith("/")
+    terminal_command = ["rm"]
+    if is_folder:
+        terminal_command.append("-r")
+    terminal_command.append(path_to_delete)
+    try:
+        subprocess.call(terminal_command)
+    except OSError:
+        logging.warning("could not execute delete: {}".format(command_array))
