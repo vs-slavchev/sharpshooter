@@ -1,6 +1,8 @@
 import subprocess
 import logging
 
+from pathlib import Path
+
 
 def get_ls(directory="."):
     logging.debug('will check ls for: {}'.format(directory))
@@ -59,11 +61,8 @@ def open_file(full_path):
 
 
 def delete(path_to_delete):
-    is_folder = path_to_delete.endswith("/")
-    terminal_command = ["rm"]
-    if is_folder:
-        terminal_command.append("-r")
-    terminal_command.append(path_to_delete)
+    home_of_logged_in_user = str(Path.home())
+    terminal_command = ["mv", path_to_delete, home_of_logged_in_user + "/.local/share/Trash/files/"]
     try:
         subprocess.call(terminal_command)
     except OSError:

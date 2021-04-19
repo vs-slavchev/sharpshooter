@@ -29,7 +29,7 @@ class CursedWindow:
         number_lines = len(self.text_content)
         logging.debug("rendering {} lines".format(number_lines))
         max_line_to_render = min(number_lines, self.height)
-        for screen_line_i in range(max_line_to_render):
+        for screen_line_i in range(max_line_to_render - 1):
             if screen_line_i != content_line_selected_i - self.lines_render_offset:
                 self.render_line(screen_line_i)
 
@@ -46,7 +46,11 @@ class CursedWindow:
 
     def render_line(self, screen_line_i):
         content_line_to_render_index = screen_line_i + self.lines_render_offset
-        text = self.text_content[content_line_to_render_index]
+        try:
+            text = self.text_content[content_line_to_render_index]
+        except IndexError as index_error:
+            logging.error(index_error)
+            return
         text_attribute = self.calculate_attributes(text)
         self.add_string(screen_line_i, text, text_attribute)
 

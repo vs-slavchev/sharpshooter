@@ -152,6 +152,7 @@ class Content:
 
     def delete_selected(self):
         terminal.delete(self.child_path)
+        self.main_pane_selected_line_i = max(0, self.main_pane_selected_line_i - 1)
 
 
 def is_hidden(line_content):
