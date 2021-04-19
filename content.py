@@ -68,7 +68,7 @@ class Content:
         pane_content = terminal.get_ls(self.parent_directory())
 
         if not self.show_hidden:
-            selected_parent_item = self.parent_lines[self.parent_pane_selected_line_i]
+            selected_parent_item = self.get_parent_folder()
             pane_content = list(filter(lambda l: not is_hidden(l) or l == selected_parent_item, pane_content))
 
         return pane_content
@@ -84,9 +84,12 @@ class Content:
         if self.cwd == "/":
             self.parent_lines = []
         else:
-            parent_folder = self.to_path_elements()[-1] + "/"
+            parent_folder = self.get_parent_folder()
             logging.info("parent folder: {}".format(parent_folder))
             self.parent_pane_selected_line_i = self.parent_lines.index(parent_folder)
+
+    def get_parent_folder(self):
+        return self.to_path_elements()[-1] + "/"
 
     def open_parent(self):
         logging.info("action: open_parent")
