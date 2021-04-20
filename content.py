@@ -160,8 +160,16 @@ class Content:
     def make_new_folder(self, new_folder_name):
         terminal.make_new_folder(self.cwd + new_folder_name)
 
+    def rename(self, old_name, new_name):
+        old_path = self.cwd + old_name
+        new_path = self.cwd + new_name
+        terminal.rename(old_path, new_path)
+
     def get_num_main_lines(self):
         return len(self.main_lines)
+
+    def get_main_selected_line_i(self):
+        return self.main_pane_selected_line_i
 
 
 def is_hidden(line_content):

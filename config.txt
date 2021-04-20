@@ -9,6 +9,7 @@ open_file = \n
 toggle_show_hidden = h
 delete = x
 make_new_folder = f
+rename = r
 
 [settings]
 show_hidden = True

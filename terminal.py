@@ -74,4 +74,12 @@ def make_new_folder(path_of_folder_to_make):
     try:
         subprocess.call(terminal_command)
     except OSError:
-        logging.warning("could not execute delete: {}".format(command_array))
+        logging.warning("could not execute making new folder: {}".format(command_array))
+
+
+def rename(old_path, new_path):
+    terminal_command = ["mv", old_path, new_path]
+    try:
+        subprocess.call(terminal_command)
+    except OSError:
+        logging.warning("could not execute rename: {}".format(command_array))

@@ -42,22 +42,18 @@ class PaneManager:
         self.right_window.clear()
         self.top_line.clear()
 
-    def render_new_folder_input_textbox(self, num_main_lines):
-        y_parent_relative = num_main_lines - 1
-        edit_window_y = y_parent_relative + 2
-        edit_window = curses.newwin(1, self.pane_width - 2, edit_window_y, self.pane_width + 1)
-        parent_window = self.main_window.get_window()
-        try:
-            rectangle(parent_window, y_parent_relative, 0, y_parent_relative + 2, self.pane_width - 1)
-        except curses.error:
-            pass
-        parent_window.refresh()
+    def render_input_textbox(self, y_position, placeholder=""):
+        edit_window = curses.newwin(1, self.pane_width - 2, y_position + 1, self.pane_width + 1)
+        text_attribute = self.main_window.calculate_attributes(placeholder)
+        self.main_window.get_window().addnstr(y_position, 0, ">", 1, text_attribute)
+        self.main_window.refresh()
 
+        if placeholder.endswith("/"):
+            placeholder = placeholder[:-1]
+        edit_window.addstr(0, 0, placeholder.encode('utf-8'))
         box = Textbox(edit_window)
 
-        # Let the user edit until Ctrl-G is struck.
         box.edit()
 
-        # Get resulting contents
         message = box.gather()
         return str(message.strip("',/\n "))
