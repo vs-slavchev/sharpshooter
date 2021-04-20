@@ -48,8 +48,10 @@ class PaneManager:
         self.main_window.get_window().addnstr(y_position, 0, ">", 1, text_attribute)
         self.main_window.refresh()
 
+        # rename folders without the slash at the end
         if placeholder.endswith("/"):
             placeholder = placeholder[:-1]
+
         edit_window.addstr(0, 0, placeholder.encode('utf-8'))
         box = Textbox(edit_window)
 

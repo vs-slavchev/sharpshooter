@@ -109,10 +109,14 @@ class Content:
 
     def down(self):
         logging.info("action: down")
+        if self.main_lines_exist():
+            return
         self.main_pane_selected_line_i = (self.main_pane_selected_line_i + 1) % len(self.main_lines)
 
     def up(self):
         logging.info("action: up")
+        if self.main_lines_exist():
+            return
         self.main_pane_selected_line_i = (self.main_pane_selected_line_i - 1) % len(self.main_lines)
 
     def open_child(self):
@@ -154,13 +158,20 @@ class Content:
         return self.cwd
 
     def delete_selected(self):
+        logging.info("action: delete selected")
+        if self.main_lines_exist():
+            return
         terminal.delete(self.child_path)
         self.main_pane_selected_line_i = max(0, self.main_pane_selected_line_i - 1)
 
     def make_new_folder(self, new_folder_name):
+        logging.info("action: make new folder")
         terminal.make_new_folder(self.cwd + new_folder_name)
 
     def rename(self, old_name, new_name):
+        logging.info("action: rename")
+        if self.main_lines_exist():
+            return
         old_path = self.cwd + old_name
         new_path = self.cwd + new_name
         terminal.rename(old_path, new_path)
@@ -170,6 +181,9 @@ class Content:
 
     def get_main_selected_line_i(self):
         return self.main_pane_selected_line_i
+
+    def main_lines_exist(self):
+        return len(self.main_lines) <= 0
 
 
 def is_hidden(line_content):

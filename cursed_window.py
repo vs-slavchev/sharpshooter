@@ -62,6 +62,9 @@ class CursedWindow:
         # ordinary files are bold
         text_attribute = curses.A_BOLD
 
+        if len(text) == 0:
+            return text_attribute
+
         # hidden files are normal font
         if text[0] == '.':
             text_attribute = curses.A_NORMAL
