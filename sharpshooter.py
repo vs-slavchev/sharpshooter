@@ -1,5 +1,6 @@
 import curses
 import logging
+import traceback
 from pathlib import Path
 
 from controller import Controller
@@ -9,7 +10,11 @@ def main(standard_screen):
     set_up_logging()
 
     controller = Controller(standard_screen)
-    controller.update()
+    try:
+        controller.update()
+    except Exception:
+        logging.error(traceback.format_exc())
+        raise
 
 
 def set_up_logging():
