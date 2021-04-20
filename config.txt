@@ -7,7 +7,8 @@ quit = q
 open_terminal = t
 open_file = \n
 toggle_show_hidden = h
-delete = d
+delete = x
+make_new_folder = f
 
 [settings]
 show_hidden = True

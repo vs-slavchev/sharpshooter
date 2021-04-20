@@ -19,3 +19,5 @@ class InputKeys:
         self.open_file = str(config['keys']['open_file']).encode('latin1').decode('unicode_escape')
         self.toggle_show_hidden = config['keys']['toggle_show_hidden']
         self.delete = config['keys']['delete']
+        self.make_new_folder = config['keys']['make_new_folder']
+

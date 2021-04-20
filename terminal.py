@@ -67,3 +67,11 @@ def delete(path_to_delete):
         subprocess.call(terminal_command)
     except OSError:
         logging.warning("could not execute delete: {}".format(command_array))
+
+
+def make_new_folder(path_of_folder_to_make):
+    terminal_command = ["mkdir", path_of_folder_to_make]
+    try:
+        subprocess.call(terminal_command)
+    except OSError:
+        logging.warning("could not execute delete: {}".format(command_array))

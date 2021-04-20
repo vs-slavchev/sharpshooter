@@ -54,3 +54,6 @@ class Controller:
             self.content.toggle_show_hidden()
         elif input_key == self.input_keys.delete:
             self.content.delete_selected()
+        elif input_key == self.input_keys.make_new_folder:
+            new_folder_name = self.pane_manager.render_new_folder_input_textbox(self.content.get_num_main_lines())
+            self.content.make_new_folder(new_folder_name)

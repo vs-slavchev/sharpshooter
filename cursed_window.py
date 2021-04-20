@@ -16,6 +16,9 @@ class CursedWindow:
         self.text_content = []
         self.lines_render_offset = 0
 
+    def get_window(self):
+        return self.window
+
     def render(self, text_content, content_line_selected_i):
         self.text_content = text_content
         last_screen_index = self.height - 1

@@ -157,6 +157,12 @@ class Content:
         terminal.delete(self.child_path)
         self.main_pane_selected_line_i = max(0, self.main_pane_selected_line_i - 1)
 
+    def make_new_folder(self, new_folder_name):
+        terminal.make_new_folder(self.cwd + new_folder_name)
+
+    def get_num_main_lines(self):
+        return len(self.main_lines)
+
 
 def is_hidden(line_content):
     return line_content.startswith(".")
