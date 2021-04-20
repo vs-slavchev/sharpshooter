@@ -32,7 +32,7 @@ class CursedWindow:
         number_lines = len(self.text_content)
         logging.debug("rendering {} lines".format(number_lines))
         max_line_to_render = min(number_lines, self.height)
-        for screen_line_i in range(max_line_to_render - 1):
+        for screen_line_i in range(max_line_to_render):
             if screen_line_i != content_line_selected_i - self.lines_render_offset:
                 self.render_line(screen_line_i)
 
