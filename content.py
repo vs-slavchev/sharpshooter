@@ -157,6 +157,12 @@ class Content:
     def get_cwd(self):
         return self.cwd
 
+    def open_selected(self):
+        if self.currently_selected_item().endswith("/"):
+            self.open_child()
+        else:
+            terminal.open_file(self.get_child_path())
+
     def delete_selected(self):
         logging.info("action: delete selected")
         if self.main_lines_exist():

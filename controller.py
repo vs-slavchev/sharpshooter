@@ -49,7 +49,7 @@ class Controller:
         elif input_key == self.input_keys.open_terminal_key:
             terminal.open_new_terminal(self.cwd)
         elif input_key == self.input_keys.open_file:
-            terminal.open_file(self.content.get_child_path())
+            self.content.open_selected()
         elif input_key == self.input_keys.toggle_show_hidden:
             self.content.toggle_show_hidden()
         elif input_key == self.input_keys.delete:
