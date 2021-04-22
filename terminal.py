@@ -71,7 +71,7 @@ def make_new_folder(path_of_folder_to_make):
     execute_terminal_call(terminal_command)
 
 
-def rename(old_path, new_path):
+def move(old_path, new_path):
     terminal_command = ["mv", old_path, new_path]
     execute_terminal_call(terminal_command)
 

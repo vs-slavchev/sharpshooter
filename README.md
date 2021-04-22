@@ -15,9 +15,9 @@ Simple to configure and hack at.
 - [x] make new folder
 - [x] rename
 - [x] delete
-- [ ] copy
-- [ ] paste
-- [ ] cut
+- [x] copy
+- [x] paste
+- [x] cut
 - [ ] easy extract/archive
 
 # Technologies

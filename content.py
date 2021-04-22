@@ -17,6 +17,7 @@ class Content:
         self.main_pane_selected_line_i = 0
 
         self.path_to_copy = ""
+        self.copy_removes_source = False
 
         self.config_manager = ConfigManager()
         self.config = self.config_manager.get_config()
@@ -182,7 +183,7 @@ class Content:
             return
         old_path = self.cwd + old_name
         new_path = self.cwd + new_name
-        terminal.rename(old_path, new_path)
+        terminal.move(old_path, new_path)
 
     def get_num_main_lines(self):
         return len(self.main_lines)
@@ -198,12 +199,30 @@ class Content:
         if self.no_main_lines_exist():
             return
         self.path_to_copy = self.get_child_path()
-        logging.info("clipboard: {}".format(self.path_to_copy))
+        self.copy_removes_source = False
+        logging.info("copy clipboard: {}".format(self.path_to_copy))
 
     def paste(self):
         logging.info("action: paste")
+        if self.path_to_copy == "":
+            return
         folder_to_paste_in = self.cwd
-        terminal.paste(self.path_to_copy, folder_to_paste_in)
+
+        if self.copy_removes_source:
+            terminal.move(self.path_to_copy, folder_to_paste_in)
+        else:
+            terminal.paste(self.path_to_copy, folder_to_paste_in)
+            
+        self.path_to_copy = ""
+        self.copy_removes_source = False
+
+    def cut(self):
+        logging.info("action: cut")
+        if self.no_main_lines_exist():
+            return
+        self.path_to_copy = self.get_child_path()
+        self.copy_removes_source = True
+        logging.info("cut clipboard: {}".format(self.path_to_copy))
 
 
 def is_hidden(line_content):

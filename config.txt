@@ -12,6 +12,7 @@ make_new_folder = f
 rename = r
 copy = c
 paste = p
+cut = d
 
 [settings]
 show_hidden = False

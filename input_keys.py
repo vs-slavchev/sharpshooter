@@ -23,4 +23,5 @@ class InputKeys:
         self.rename = config['keys']['rename']
         self.copy = config['keys']['copy']
         self.paste = config['keys']['paste']
+        self.cut = config['keys']['cut']
 
