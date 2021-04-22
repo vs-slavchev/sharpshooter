@@ -19,6 +19,7 @@ Simple to configure and hack at.
 - [x] paste
 - [x] cut
 - [ ] easy extract/archive
+- [ ] select multiple items
 
 # Technologies
 

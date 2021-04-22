@@ -92,7 +92,11 @@ class Content:
             self.parent_pane_selected_line_i = self.parent_lines.index(parent_folder)
 
     def get_parent_folder(self):
-        return self.to_path_elements()[-1] + "/"
+        path_elements = self.to_path_elements()
+        if len(path_elements) > 0:
+            return path_elements[-1] + "/"
+        else:
+            return ""
 
     def open_parent(self):
         logging.info("action: open_parent")
@@ -212,7 +216,7 @@ class Content:
             terminal.move(self.path_to_copy, folder_to_paste_in)
         else:
             terminal.paste(self.path_to_copy, folder_to_paste_in)
-            
+
         self.path_to_copy = ""
         self.copy_removes_source = False
 
