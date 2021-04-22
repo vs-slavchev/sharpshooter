@@ -63,23 +63,30 @@ def open_file(full_path):
 def delete(path_to_delete):
     home_of_logged_in_user = str(Path.home())
     terminal_command = ["mv", path_to_delete, home_of_logged_in_user + "/.local/share/Trash/files/"]
-    try:
-        subprocess.call(terminal_command)
-    except OSError:
-        logging.warning("could not execute delete: {}".format(command_array))
+    execute_terminal_call(terminal_command)
 
 
 def make_new_folder(path_of_folder_to_make):
     terminal_command = ["mkdir", path_of_folder_to_make]
-    try:
-        subprocess.call(terminal_command)
-    except OSError:
-        logging.warning("could not execute making new folder: {}".format(command_array))
+    execute_terminal_call(terminal_command)
 
 
 def rename(old_path, new_path):
     terminal_command = ["mv", old_path, new_path]
+    execute_terminal_call(terminal_command)
+
+
+def paste(old_path, new_path):
+    terminal_command = ["cp", old_path, new_path]
+    is_folder = old_path.endswith("/")
+    if is_folder:
+        terminal_command.insert(1, "-r")
+
+    execute_terminal_call(terminal_command)
+
+
+def execute_terminal_call(terminal_command):
     try:
         subprocess.call(terminal_command)
     except OSError:
-        logging.warning("could not execute rename: {}".format(command_array))
+        logging.error("could not execute terminal call: {}".format(terminal_command))

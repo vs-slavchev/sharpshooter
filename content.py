@@ -16,6 +16,8 @@ class Content:
         self.parent_pane_selected_line_i = 0
         self.main_pane_selected_line_i = 0
 
+        self.path_to_copy = ""
+
         self.config_manager = ConfigManager()
         self.config = self.config_manager.get_config()
         self.show_hidden = self.config['settings'].getboolean('show_hidden')
@@ -109,13 +111,13 @@ class Content:
 
     def down(self):
         logging.info("action: down")
-        if self.main_lines_exist():
+        if self.no_main_lines_exist():
             return
         self.main_pane_selected_line_i = (self.main_pane_selected_line_i + 1) % len(self.main_lines)
 
     def up(self):
         logging.info("action: up")
-        if self.main_lines_exist():
+        if self.no_main_lines_exist():
             return
         self.main_pane_selected_line_i = (self.main_pane_selected_line_i - 1) % len(self.main_lines)
 
@@ -165,7 +167,7 @@ class Content:
 
     def delete_selected(self):
         logging.info("action: delete selected")
-        if self.main_lines_exist():
+        if self.no_main_lines_exist():
             return
         terminal.delete(self.child_path)
         self.main_pane_selected_line_i = max(0, self.main_pane_selected_line_i - 1)
@@ -176,7 +178,7 @@ class Content:
 
     def rename(self, old_name, new_name):
         logging.info("action: rename")
-        if self.main_lines_exist():
+        if self.no_main_lines_exist():
             return
         old_path = self.cwd + old_name
         new_path = self.cwd + new_name
@@ -188,8 +190,20 @@ class Content:
     def get_main_selected_line_i(self):
         return self.main_pane_selected_line_i
 
-    def main_lines_exist(self):
+    def no_main_lines_exist(self):
         return len(self.main_lines) <= 0
+
+    def copy_selected(self):
+        logging.info("action: copy")
+        if self.no_main_lines_exist():
+            return
+        self.path_to_copy = self.get_child_path()
+        logging.info("clipboard: {}".format(self.path_to_copy))
+
+    def paste(self):
+        logging.info("action: paste")
+        folder_to_paste_in = self.cwd
+        terminal.paste(self.path_to_copy, folder_to_paste_in)
 
 
 def is_hidden(line_content):

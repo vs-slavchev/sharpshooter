@@ -10,6 +10,8 @@ toggle_show_hidden = h
 delete = x
 make_new_folder = f
 rename = r
+copy = c
+paste = p
 
 [settings]
 show_hidden = False

@@ -13,10 +13,11 @@ Simple to configure and hack at.
 - [x] open files with the appropriate application
 - [x] toggle show/hide hidden files
 - [x] make new folder
-- [x] delete
 - [x] rename
+- [x] delete
 - [ ] copy
 - [ ] paste
+- [ ] cut
 - [ ] easy extract/archive
 
 # Technologies

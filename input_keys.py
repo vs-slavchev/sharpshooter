@@ -21,4 +21,6 @@ class InputKeys:
         self.delete = config['keys']['delete']
         self.make_new_folder = config['keys']['make_new_folder']
         self.rename = config['keys']['rename']
+        self.copy = config['keys']['copy']
+        self.paste = config['keys']['paste']
 
