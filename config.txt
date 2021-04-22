@@ -12,5 +12,5 @@ make_new_folder = f
 rename = r
 
 [settings]
-show_hidden = True
+show_hidden = False
 

@@ -14,14 +14,15 @@ def get_ls(directory="."):
         return []
 
     all_lines = list(map(lambda s: s.decode("utf-8"), cwd_ls.splitlines()))
-    lines = all_lines[2:]  # drop first 2 lines which are not folders
-    logging.debug('ls {} output: {} items'.format(directory, len(lines)))
+    useful_lines = all_lines[2:]  # drop first 2 lines which are not folders
+    fixed_lines = list(map(lambda l: l[:-1] if l.endswith("*") else l, useful_lines))
+    logging.debug('ls {} output: {} items'.format(directory, len(fixed_lines)))
 
     # drop symbolic links, sockets, named pipes and doors
     lines = list(filter(lambda l: not l.endswith("@") and\
           not l.endswith("=") and\
           not l.endswith("|") and\
-          not l.endswith(">"), lines))
+          not l.endswith(">"), fixed_lines))
 
     return lines
 
@@ -48,9 +49,8 @@ def open_file(full_path):
 
     # try different terminals until one of them works
     terminal_commands = [
-        ['gnome-terminal', '--execute', 'rifle', full_path],
-        ['xterm', '-e', 'rifle', full_path],
-        ['rxvt', '-e', 'rifle', full_path],
+        ['xdg-open', full_path],
+        ['open', full_path],
     ]
     for command_array in terminal_commands:
         try:
