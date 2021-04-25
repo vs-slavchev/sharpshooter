@@ -64,6 +64,8 @@ class Controller:
             self.content.paste()
         elif input_key == self.input_keys.cut:
             self.content.cut()
+        elif input_key == self.input_keys.zip_unzip:
+            self.content.zip_unzip()
 
     def make_new_folder(self):
         new_folder_name = self.pane_manager.render_input_textbox(self.content.get_num_main_lines())

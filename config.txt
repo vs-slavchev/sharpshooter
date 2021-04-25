@@ -13,6 +13,7 @@ rename = r
 copy = c
 paste = p
 cut = d
+zip_unzip = z
 
 [settings]
 show_hidden = False

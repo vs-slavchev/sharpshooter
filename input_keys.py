@@ -24,4 +24,5 @@ class InputKeys:
         self.copy = config['keys']['copy']
         self.paste = config['keys']['paste']
         self.cut = config['keys']['cut']
+        self.zip_unzip = config['keys']['zip_unzip']
 

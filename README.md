@@ -5,7 +5,7 @@ Single-key hotkeys for easy workflow.
 
 Simple to configure and hack at.
 
-*What this is not: complex, with thousands of commits, hard to get into, promising support for special encodings or alphabets, supporting extra features like bulk rename.*
+*What this is not: complex, with many features, with thousands of commits, hard to get into, promising support for special encodings or alphabets, supporting extra features like bulk rename.*
 
 # Features
 - [x] configurable hotkeys
@@ -18,7 +18,7 @@ Simple to configure and hack at.
 - [x] copy
 - [x] paste
 - [x] cut
-- [ ] easy extract/archive
+- [x] easy extract/archive with zip/unzip
 - [ ] select multiple items
 
 # Technologies
@@ -30,3 +30,12 @@ Simple to configure and hack at.
 [pathlib](https://docs.python.org/3/library/pathlib.html)
 
 [configparser](https://docs.python.org/3/library/configparser.html)
+
+zip
+
+unzip
+
+# Inspired by
+[ranger](https://ranger.github.io/)
+
+[Midnight Comander](https://midnight-commander.org/)
