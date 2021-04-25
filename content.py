@@ -235,17 +235,27 @@ class Content:
         if self.no_main_lines_exist():
             return
 
-        path_to_process = self.cwd + self.currently_selected_item()
-        folder_to_put_in = self.cwd
-        thread = []
-        if self.currently_selected_item().endswith(".zip"):
-            thread = threading.Thread(target=shutil.unpack_archive,
-                                      args=(path_to_process, folder_to_put_in + self.currently_selected_item()[:-4], 'zip'))
+        format_abbreviation = ".zip"
+        if self.currently_selected_item().endswith(format_abbreviation):
+            self.unzip(format_abbreviation)
         else:
-            zip_file_name = self.currently_selected_item()[:-1] if self.currently_selected_item().endswith("/") \
-                else self.currently_selected_item()
-            thread = threading.Thread(target=shutil.make_archive,
-                                      args=(folder_to_put_in + zip_file_name, 'zip', path_to_process,))
+            self.zip()
+
+    def zip(self):
+        logging.info("action: zip")
+        path_to_process = self.cwd + self.currently_selected_item()
+        zip_file_name = self.currently_selected_item()[:-1] if self.currently_selected_item().endswith("/") \
+            else self.currently_selected_item()
+        thread = threading.Thread(target=shutil.make_archive,
+                                  args=(self.cwd + zip_file_name, 'zip', path_to_process,))
+        thread.start()
+
+    def unzip(self, format_abbreviation):
+        logging.info("action: unzip")
+        path_to_process = self.cwd + self.currently_selected_item()
+        folder_to_unpack_in = self.cwd + self.currently_selected_item()[:-len(format_abbreviation)]
+        thread = threading.Thread(target=shutil.unpack_archive,
+                                  args=(path_to_process, folder_to_unpack_in, 'zip'))
         thread.start()
 
 
