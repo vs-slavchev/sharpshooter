@@ -26,8 +26,7 @@ class Content:
         self.copy_removes_source = False
 
         self.config_manager = ConfigManager()
-        self.config = self.config_manager.get_config()
-        self.show_hidden = self.config['settings'].getboolean('show_hidden')
+        self.show_hidden = self.config_manager.get_show_hidden()
 
     def toggle_show_hidden(self):
         logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
@@ -40,8 +39,7 @@ class Content:
 
         # save change to the config file
         value_to_write = str(self.show_hidden)
-        self.config.set('settings', 'show_hidden', value_to_write)
-        self.config_manager.save_config()
+        self.config_manager.set_config_settings_value('show_hidden', value_to_write)
 
     # the position of the selected line might change if items before it are hidden, but we want the same item
     # to be selected after hiding or showing
