@@ -1,7 +1,10 @@
+"""
+    Handles the user input, calls the content to update and renders the new view in the UI.
+"""
+
 import curses
 import logging
 
-import terminal
 from input_keys import InputKeys
 from pane_manager import PaneManager
 from content import Content
@@ -47,7 +50,7 @@ class Controller:
         elif input_key == self.input_keys.quit_key:
             self.is_working = False
         elif input_key == self.input_keys.open_terminal_key:
-            terminal.open_new_terminal(self.cwd)
+            self.content.open_new_terminal()
         elif input_key == self.input_keys.open_file:
             self.content.open_selected()
         elif input_key == self.input_keys.toggle_show_hidden:

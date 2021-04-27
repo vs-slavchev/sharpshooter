@@ -18,7 +18,7 @@ Simple to configure and hack at.
 - [x] copy
 - [x] paste
 - [x] cut
-- [x] easy extract/archive with zip/unzip
+- [x] easy extract/archive
 - [ ] select multiple items
 
 # Technologies
@@ -31,9 +31,11 @@ Simple to configure and hack at.
 
 [configparser](https://docs.python.org/3/library/configparser.html)
 
-zip
+[shutil](https://docs.python.org/3/library/shutil.html)
 
-unzip
+# Diagrams
+
+![block_diagram](./docs/block_diagram.svg)
 
 # Inspired by
 [ranger](https://ranger.github.io/)

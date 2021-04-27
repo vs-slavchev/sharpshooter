@@ -1,3 +1,7 @@
+"""
+    Reads the input keys from a config.
+"""
+
 import configparser
 from pathlib import Path
 

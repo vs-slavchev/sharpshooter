@@ -1,3 +1,7 @@
+"""
+    Contains the state of the application - panes, current working directory, selected lines.
+"""
+
 import logging
 import terminal
 from pathlib import Path
@@ -257,6 +261,9 @@ class Content:
         thread = threading.Thread(target=shutil.unpack_archive,
                                   args=(path_to_process, folder_to_unpack_in, 'zip'))
         thread.start()
+
+    def open_new_terminal(self):
+        terminal.open_new_terminal(self.cwd)
 
 
 def is_hidden(line_content):

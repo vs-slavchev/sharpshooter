@@ -1,3 +1,7 @@
+"""
+    Reads and writes to a config file.
+"""
+
 import configparser
 from pathlib import Path
 

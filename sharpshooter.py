@@ -1,3 +1,7 @@
+"""
+    Starting point of the program, contains the input controller and the update loop.
+"""
+
 import curses
 import logging
 import traceback

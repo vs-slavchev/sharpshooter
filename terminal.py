@@ -1,3 +1,7 @@
+"""
+    Executes terminal commands and for some returns their output.
+"""
+
 import subprocess
 import logging
 

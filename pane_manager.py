@@ -1,3 +1,7 @@
+"""
+    Controls the rendering of each pane and other UI elements.
+"""
+
 import logging
 import curses
 

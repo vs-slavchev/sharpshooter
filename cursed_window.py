@@ -1,3 +1,7 @@
+"""
+    A single pane that is rendered with the curses library.
+"""
+
 import curses
 import logging
 
