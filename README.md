@@ -1,9 +1,11 @@
-# Sharpshooter
+# Sharpshooter [![GitHub release](https://img.shields.io/github/release/vs-slavchev/sharpshooter.svg)](https://GitHub.com/vs-slavchev/sharpshooter/releases/)
+
 Minimal file manager in the terminal.
 
 Single-key hotkeys for easy workflow.
 
 Simple to configure and hack at.
+![LOC counter](https://tokei.rs/b1/github/vs-slavchev/sharpshooter?category=code)
 
 *What this is not: complex, with many features, with thousands of commits, hard to get into, promising support for special encodings or alphabets, supporting extra features like bulk rename.*
 
