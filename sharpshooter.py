@@ -30,7 +30,3 @@ def set_up_logging():
 
 def main():
     curses.wrapper(incurses)
-
-
-if __name__ == "__main__":
-    main()
