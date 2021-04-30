@@ -10,7 +10,7 @@ from pathlib import Path
 from controller import Controller
 
 
-def main(standard_screen):
+def incurses(standard_screen):
     set_up_logging()
 
     controller = Controller(standard_screen)
@@ -28,4 +28,9 @@ def set_up_logging():
     logging.info("curses version: {}".format(str(curses.version.decode())))
 
 
-curses.wrapper(main)
+def main():
+    curses.wrapper(incurses)
+
+
+if __name__ == "__main__":
+    main()
