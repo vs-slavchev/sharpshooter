@@ -39,13 +39,13 @@ class Controller:
     def process_input(self):
         input_key = self.standard_screen.getkey()
         logging.info("input: {}".format(input_key))
-        if input_key == self.input_keys.down_key:
+        if input_key == self.input_keys.down_key or input_key == 'KEY_DOWN':
             self.content.down()
-        elif input_key == self.input_keys.up_key:
+        elif input_key == self.input_keys.up_key or input_key == 'KEY_UP':
             self.content.up()
-        elif input_key == self.input_keys.open_parent_key:
+        elif input_key == self.input_keys.open_parent_key or input_key == 'KEY_LEFT':
             self.content.open_parent()
-        elif input_key == self.input_keys.open_child_key:
+        elif input_key == self.input_keys.open_child_key or input_key == 'KEY_RIGHT':
             self.content.open_child()
         elif input_key == self.input_keys.quit_key:
             self.is_working = False

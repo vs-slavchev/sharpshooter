@@ -1,4 +1,4 @@
-# Sharpshooter [![GitHub release](https://img.shields.io/github/release/vs-slavchev/sharpshooter.svg)](https://GitHub.com/vs-slavchev/sharpshooter/releases/)
+# Sharpshooter [![sharpshooter](https://snapcraft.io/sharpshooter/badge.svg)](https://snapcraft.io/sharpshooter)
 
 Minimal file manager in the terminal.
 
