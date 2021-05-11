@@ -4,11 +4,11 @@
 
 import logging
 import terminal
-from pathlib import Path
 import shutil
 import threading
 
 from config_manager import ConfigManager
+import utility
 
 
 class Content:
@@ -18,7 +18,7 @@ class Content:
         self.child_path = ""
         self.child_lines = []
 
-        self.cwd = str(Path.cwd()) + "/"
+        self.cwd = terminal.provide_initial_cwd()
         self.parent_pane_selected_line_i = 0
         self.main_pane_selected_line_i = 0
 
@@ -28,11 +28,13 @@ class Content:
         self.config_manager = ConfigManager()
         self.show_hidden = self.config_manager.get_show_hidden()
 
+        self.recalculate_content()
+
     def toggle_show_hidden(self):
         logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
         self.show_hidden = not self.show_hidden
 
-        if not is_hidden(self.currently_selected_item()):
+        if not utility.is_hidden(self.currently_selected_item()):
             self.recalculate_same_selected_line()
         else:
             self.select_closest_to_hidden_item()
@@ -56,7 +58,7 @@ class Content:
         closest_visible_item = ""
         for item_i in indices_to_iterate:
             item = self.main_lines[item_i]
-            if not is_hidden(item):
+            if not utility.is_hidden(item):
                 closest_visible_item = item
                 break
         self.main_lines = self.query_pane_content(self.cwd)
@@ -67,7 +69,7 @@ class Content:
         pane_content = terminal.get_ls(path_to_folder)
 
         if not self.show_hidden:
-            pane_content = list(filter(lambda l: not is_hidden(l), pane_content))
+            pane_content = list(filter(lambda l: not utility.is_hidden(l), pane_content))
 
         return pane_content
 
@@ -76,7 +78,7 @@ class Content:
 
         if not self.show_hidden:
             selected_parent_item = self.get_parent_folder()
-            pane_content = list(filter(lambda l: not is_hidden(l) or l == selected_parent_item, pane_content))
+            pane_content = list(filter(lambda l: not utility.is_hidden(l) or l == selected_parent_item, pane_content))
 
         return pane_content
 
@@ -87,7 +89,10 @@ class Content:
         self.child_lines = []
         if len(self.main_lines) > 0:
             self.child_path = self.cwd + self.currently_selected_item()
-            self.child_lines = self.query_pane_content(self.child_path)
+            if utility.is_folder(self.child_path):
+                self.child_lines = self.query_pane_content(self.child_path)
+            else:
+                self.child_lines = []
         if self.cwd == "/":
             self.parent_lines = []
         else:
@@ -179,7 +184,7 @@ class Content:
         if self.no_main_lines_exist():
             return
         terminal.delete(self.child_path)
-        self.main_pane_selected_line_i = max(0, self.main_pane_selected_line_i - 1)
+        self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
@@ -220,6 +225,10 @@ class Content:
             terminal.move(self.path_to_copy, folder_to_paste_in)
         else:
             terminal.paste(self.path_to_copy, folder_to_paste_in)
+
+        self.main_lines = self.query_pane_content(self.cwd)
+        newly_pasted_item = utility.extract_item_name_from_path(self.path_to_copy)
+        self.main_pane_selected_line_i = self.main_lines.index(newly_pasted_item)
 
         self.path_to_copy = ""
         self.copy_removes_source = False
@@ -262,7 +271,3 @@ class Content:
 
     def open_new_terminal(self):
         terminal.open_new_terminal(self.cwd)
-
-
-def is_hidden(line_content):
-    return line_content.startswith(".")

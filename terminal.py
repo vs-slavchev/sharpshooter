@@ -6,6 +6,11 @@ import subprocess
 import logging
 
 from pathlib import Path
+import utility
+
+
+def provide_initial_cwd():
+    return str(Path.home()) + "/"
 
 
 def get_ls(directory="."):
@@ -47,8 +52,7 @@ def open_new_terminal(directory_to_open_in):
 
 
 def open_file(full_path):
-    is_folder = full_path.endswith("/")
-    if is_folder:
+    if utility.is_folder(full_path):
         return
 
     # try different terminals until one of them works
@@ -82,8 +86,7 @@ def move(old_path, new_path):
 
 def paste(old_path, new_path):
     terminal_command = ["cp", old_path, new_path]
-    is_folder = old_path.endswith("/")
-    if is_folder:
+    if utility.is_folder(old_path):
         terminal_command.insert(1, "-r")
 
     execute_terminal_call(terminal_command)
