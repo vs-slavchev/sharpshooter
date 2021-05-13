@@ -84,19 +84,25 @@ class TestContent(unittest.TestCase):
 
         self.assertEqual(content.main_pane_selected_line_i, 1)
 
-    # @mock.patch('content.terminal')
-    # def test_pasted_line_is_selected_after_pasting(self, mock_terminal):
-    #     mock_terminal.provide_initial_cwd.return_value = cwd
-    #     mock_terminal.get_ls.side_effect = mock_return_values
-    #
-    #     content = Content()
-    #     content.main_pane_selected_line_i = 1
-    #     content.path_to_copy = '/b/bb/bbb/bbbb'
-    # 
-    #     content.main_lines = ['aaaa', 'aaab', 'aaac', 'bbbb']
-    #     content.paste()
-    #
-    #     self.assertEqual(content.main_pane_selected_line_i, 3)
+    @mock.patch('content.terminal')
+    def test_pasted_line_is_selected_after_pasting(self, mock_terminal):
+        mock_terminal.provide_initial_cwd.return_value = cwd
+        mock_terminal.get_ls.side_effect = mock_return_values
+
+        content = Content()
+        content.main_pane_selected_line_i = 1
+
+        mock_directory_contents_during_paste = {cwd: ['aaaa', 'aaab', 'aaac', 'bbbb'],
+                                                parent_dir: ['aaa/', 'aab/', 'aac/']}
+
+        def mock_return_values_during_paste(arg):
+            return mock_directory_contents_during_paste[arg]
+
+        mock_terminal.get_ls.side_effect = mock_return_values_during_paste
+        content.path_to_copy = '/b/bb/bbb/bbbb'
+        content.paste()
+
+        self.assertEqual(content.main_pane_selected_line_i, 3)
 
 
 if __name__ == '__main__':
