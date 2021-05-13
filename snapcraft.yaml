@@ -1,5 +1,5 @@
 name: sharpshooter
-version: '0.9.1'
+version: '0.9.3'
 summary: Minimal file manager
 description: |
   minimal terminal application that in a single key press lets you
