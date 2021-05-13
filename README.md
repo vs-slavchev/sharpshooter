@@ -1,4 +1,4 @@
-# Sharpshooter [![sharpshooter](https://snapcraft.io/sharpshooter/badge.svg)](https://snapcraft.io/sharpshooter)
+# Sharpshooter [![sharpshooter](https://snapcraft.io/sharpshooter/badge.svg)](https://snapcraft.io/sharpshooter) [![Build Status](https://travis-ci.com/vs-slavchev/sharpshooter.svg?branch=master)](https://travis-ci.com/vs-slavchev/sharpshooter)
 
 Minimal file manager in the terminal.
 
