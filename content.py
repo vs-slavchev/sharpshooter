@@ -233,7 +233,7 @@ class Content:
         self.path_to_copy = ""
         self.copy_removes_source = False
 
-    def cut(self):
+    def cut_selected(self):
         logging.info("action: cut")
         if self.no_main_lines_exist():
             return
