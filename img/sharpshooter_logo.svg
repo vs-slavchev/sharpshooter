@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="13.758284mm"
+   height="13.758281mm"
+   viewBox="0 0 13.758284 13.758281"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="sharpshooter_logo.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2"
+     inkscape:cx="117.83109"
+     inkscape:cy="12.45315"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.4891752,-46.083259)">
+    <g
+       id="g2787"
+       inkscape:export-xdpi="250.77574"
+       inkscape:export-ydpi="250.77574"
+       transform="matrix(0.26530538,0,0,0.26530538,151.76703,-56.111031)">
+      <circle
+         r="9.1670008"
+         cy="88.478287"
+         cx="647.76404"
+         transform="rotate(135)"
+         id="path919-7-2-3-9-6-7-8-4-2-4-0-4-4-8-2-8-9"
+         style="fill:#ea47e7;fill-opacity:1;stroke:none;stroke-width:0.14961269;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path2551-62-9"
+         d="m -527.08427,404.64173 -12.96454,12.96464 12.96458,12.96458 6.48231,-6.48228 -6.48235,-6.48234 6.48231,-6.48225 -6.48231,-6.48235"
+         style="fill:#41a7d0;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path2553-84-0"
+         d="m -494.6728,385.19494 -25.92916,25.92914 6.48229,6.48229 -12.96458,12.96457 6.48228,6.48228 19.44691,-19.4468 -6.48227,-6.48232 19.44681,-19.4469 z"
+         style="fill:#61d9e6;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

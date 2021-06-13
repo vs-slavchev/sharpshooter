@@ -1,9 +1,8 @@
 name: sharpshooter
-version: '0.9.3'
+version: '1.0.0'
 summary: Minimal file manager
 description: |
-  minimal terminal application that in a single key press lets you
-  navigate and copy/cut/delete/archive your files and open the terminal.
+  minimal terminal application that in a single key press lets you navigate and copy/cut/delete/archive your files and open the terminal.
 
 confinement: devmode
 base: core18
