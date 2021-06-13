@@ -80,7 +80,13 @@ class CursedWindow:
         return text_attribute
 
     def add_string(self, y, text, text_attribute):
+        unused_chars_on_line = 2
+        indicator_long_line = "..."
         text = " " + text
+        if len(text) > self.width - unused_chars_on_line:
+            last_char_index = self.width - (unused_chars_on_line + len(indicator_long_line))
+            text = text[:last_char_index] + indicator_long_line
+
         try:
             self.window.addnstr(y, 0, text, self.width, text_attribute)
         except curses.error:
