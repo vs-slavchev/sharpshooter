@@ -7,15 +7,15 @@ import logging
 import traceback
 from pathlib import Path
 
-from controller import Controller
+import controller
 
 
 def incurses(standard_screen):
     set_up_logging()
 
-    controller = Controller(standard_screen)
+    appController = controller.Controller(standard_screen)
     try:
-        controller.update()
+        appController.update()
     except Exception:
         logging.error(traceback.format_exc())
         raise

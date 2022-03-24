@@ -40,6 +40,15 @@ Simple to configure and hack at.
 
 ![block_diagram](./docs/block_diagram.svg)
 
+# Releasing
+1. install ```sudo apt-get install build-essential devscripts debhelper debmake dh-python python3-all```
+2. ```python3 setup.py sdist```
+3. ```mv dist/sharpshooter-*.tar.gz .```
+4. ```tar -xzmf sharpshooter-*.tar.gz```
+5. cd into sharpshooter-* folder
+6. ```debmake -b":python3"```
+7. ```debuild```
+
 # Inspired by
 [ranger](https://ranger.github.io/)
 
