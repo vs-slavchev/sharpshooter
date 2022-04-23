@@ -71,12 +71,13 @@ class Controller:
             self.content.zip_unzip()
 
     def make_new_folder(self):
-        new_folder_name = self.pane_manager.render_input_textbox(self.content.get_num_main_lines())
+        y_position = self.pane_manager.main_window.calculate_max_line_to_render(self.content.get_num_main_lines()) + 1
+        new_folder_name = self.pane_manager.render_input_textbox(y_position)
         self.content.make_new_folder(new_folder_name)
 
     def rename_selected(self):
         if self.content.no_main_lines_exist():
             return
-        selected_text = self.content.currently_selected_item()
+        selected_text = self.content.currently_selected_item().get_text()
         new_name = self.pane_manager.render_input_textbox(self.content.get_main_selected_line_i(), selected_text)
         self.content.rename(selected_text, new_name)

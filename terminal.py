@@ -4,6 +4,7 @@
 
 import subprocess
 import logging
+from fs_item import FsItem
 
 from pathlib import Path
 import utility
@@ -33,7 +34,7 @@ def get_ls(directory="."):
           not l.endswith("|") and\
           not l.endswith(">"), fixed_lines))
 
-    return lines
+    return map(lambda vl: FsItem(vl), lines)
 
 
 def open_new_terminal(directory_to_open_in):

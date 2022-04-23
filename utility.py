@@ -2,11 +2,7 @@
     Small stateless functions used in multiple places.
 """
 
-import subprocess
-import logging
 import re
-
-from pathlib import Path
 
 
 def is_folder(line):

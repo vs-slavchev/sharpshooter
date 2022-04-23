@@ -17,26 +17,27 @@ class CursedWindow:
         self.y = y
         self.width = width
         self.height = height
-        self.text_content = []
+        self.fs_content = []
         self.lines_render_offset = 0
 
     def get_window(self):
         return self.window
 
-    def render(self, text_content, content_line_selected_i):
-        self.text_content = text_content
-        last_screen_index = self.height - 1
-        selected_line_is_below_screen = content_line_selected_i >= last_screen_index + self.lines_render_offset
+    # todo
+    # take 1 arg: an array of FsItems, use each item's fields to see if it is selected or marked
+    def render(self, fs_content, content_line_selected_i):
+        self.fs_content = fs_content
+        last_window_line_index = self.height - 2
+        selected_line_is_below_screen = content_line_selected_i >= last_window_line_index + self.lines_render_offset
         selected_line_is_above_screen = content_line_selected_i <= self.lines_render_offset
         if selected_line_is_below_screen:
-            self.lines_render_offset = content_line_selected_i - last_screen_index
+            self.lines_render_offset = content_line_selected_i - last_window_line_index
         elif selected_line_is_above_screen:
             self.lines_render_offset = content_line_selected_i
 
-        number_lines = len(self.text_content)
+        number_lines = len(self.fs_content)
         logging.debug("rendering {} lines".format(number_lines))
-        max_line_to_render = min(number_lines, self.height)
-        for screen_line_i in range(max_line_to_render):
+        for screen_line_i in range(self.calculate_max_line_to_render(number_lines) + 1):
             if screen_line_i != content_line_selected_i - self.lines_render_offset:
                 self.render_line(screen_line_i)
 
@@ -44,17 +45,20 @@ class CursedWindow:
             self.render_selected_line(content_line_selected_i)
 
     def render_without_selected(self, text_content):
-        self.text_content = text_content
-        number_lines = len(self.text_content)
+        self.fs_content = text_content
+        number_lines = len(self.fs_content)
         logging.debug("rendering {} lines".format(number_lines))
-        max_line_to_render = min(number_lines, self.height)
-        for line_i in range(max_line_to_render):
+        for line_i in range(self.calculate_max_line_to_render(number_lines)):
             self.render_line(line_i)
+
+    def calculate_max_line_to_render(self, number_lines):
+        max_line_to_render = min(number_lines, self.height - 2)
+        return max_line_to_render
 
     def render_line(self, screen_line_i):
         content_line_to_render_index = screen_line_i + self.lines_render_offset
         try:
-            text = self.text_content[content_line_to_render_index]
+            text = self.fs_content[content_line_to_render_index].get_text()
         except IndexError as index_error:
             logging.error(index_error)
             return
@@ -97,9 +101,9 @@ class CursedWindow:
         if content_line_selected_i < 0:
             return
 
-        y_to_draw_at = (content_line_selected_i % len(self.text_content)) - self.lines_render_offset
+        y_to_draw_at = (content_line_selected_i % len(self.fs_content)) - self.lines_render_offset
 
-        text = self.text_content[content_line_selected_i]
+        text = self.fs_content[content_line_selected_i].get_text()
         text_attribute = self.calculate_attributes(text)
 
         text_attribute = text_attribute | curses.A_REVERSE

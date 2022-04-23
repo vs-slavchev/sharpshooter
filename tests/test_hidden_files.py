@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 
 from content import Content
+from fs_item import FsItem
 
 cwd = '/a/aa/.aac/'  # current folder is hidden
 parent_dir = '/a/aa/'
@@ -9,7 +10,7 @@ mock_directory_contents = {cwd: ['aaaa', '.aaab', 'aaac', '.aaad'], parent_dir: 
 
 
 def mock_return_values(arg):
-    return mock_directory_contents[arg]
+    return map(lambda vl: FsItem(vl), mock_directory_contents[arg])
 
 
 class TestHiddenFiles(unittest.TestCase):

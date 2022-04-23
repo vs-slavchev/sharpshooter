@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 
 from content import Content
+from fs_item import FsItem
 
 cwd = '/a/aa/aac/'
 parent_dir = '/a/aa/'
@@ -9,7 +10,7 @@ mock_directory_contents = {cwd: ['aaaa', 'aaab', 'aaac'], parent_dir: ['aaa/', '
 
 
 def mock_return_values(arg):
-    return mock_directory_contents[arg]
+    return map(lambda vl: FsItem(vl), mock_directory_contents[arg])
 
 
 class TestTerminalActions(unittest.TestCase):

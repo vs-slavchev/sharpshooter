@@ -8,6 +8,7 @@ import shutil
 import threading
 
 from config_manager import ConfigManager
+from fs_item import FsItem
 import utility
 
 
@@ -34,7 +35,7 @@ class Content:
         logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
         self.show_hidden = not self.show_hidden
 
-        if not utility.is_hidden(self.currently_selected_item()):
+        if not utility.is_hidden(self.currently_selected_item().get_text()):
             self.recalculate_same_selected_line()
         else:
             self.select_closest_to_hidden_item()
@@ -69,7 +70,7 @@ class Content:
         pane_content = terminal.get_ls(path_to_folder)
 
         if not self.show_hidden:
-            pane_content = list(filter(lambda l: not utility.is_hidden(l), pane_content))
+            pane_content = list(filter(lambda l: not utility.is_hidden(l.get_text()), pane_content))
 
         return pane_content
 
@@ -78,7 +79,8 @@ class Content:
 
         if not self.show_hidden:
             selected_parent_item = self.get_parent_folder()
-            pane_content = list(filter(lambda l: not utility.is_hidden(l) or l == selected_parent_item, pane_content))
+            pane_content = list(filter(
+                lambda l: not utility.is_hidden(l.get_text()) or l.get_text() == selected_parent_item, pane_content))
 
         return pane_content
 
@@ -88,7 +90,7 @@ class Content:
         self.child_path = ""
         self.child_lines = []
         if len(self.main_lines) > 0:
-            self.child_path = self.cwd + self.currently_selected_item()
+            self.child_path = self.cwd + self.currently_selected_item().get_text()
             if utility.is_folder(self.child_path):
                 self.child_lines = self.query_pane_content(self.child_path)
             else:
@@ -98,7 +100,8 @@ class Content:
         else:
             parent_folder = self.get_parent_folder()
             logging.info("parent folder: {}".format(parent_folder))
-            self.parent_pane_selected_line_i = self.parent_lines.index(parent_folder)
+            self.parent_pane_selected_line_i = list(map(lambda pl: pl.get_text(), self.parent_lines))\
+                .index(parent_folder)
 
     def get_parent_folder(self):
         path_elements = self.to_path_elements()
@@ -138,7 +141,7 @@ class Content:
     def open_child(self):
         logging.debug("action: open_child: {}".format(self.child_path))
         child_exists = self.child_path != ""
-        selected_is_folder = child_exists and self.currently_selected_item().endswith("/")
+        selected_is_folder = child_exists and self.currently_selected_item().get_text().endswith("/")
         if selected_is_folder:
             self.main_pane_selected_line_i = 0
             self.cwd = self.child_path
@@ -164,6 +167,11 @@ class Content:
         return self.child_path
 
     def get_renderable_content(self):
+        # todo
+        # parent_lines_fs = map self.parent lines to an array of FsItems with the selected element (self.parent_pane_selected_line_i) set to selected
+        # same for main lines
+        # just the simple mapping for the child lines
+
         return self.parent_lines,\
                self.main_lines,\
                self.child_lines,\
@@ -174,7 +182,7 @@ class Content:
         return self.cwd
 
     def open_selected(self):
-        if self.currently_selected_item().endswith("/"):
+        if self.currently_selected_item().get_text().endswith("/"):
             self.open_child()
         else:
             terminal.open_file(self.get_child_path())
@@ -227,7 +235,7 @@ class Content:
             terminal.paste(self.path_to_copy, folder_to_paste_in)
 
         self.main_lines = self.query_pane_content(self.cwd)
-        newly_pasted_item = utility.extract_item_name_from_path(self.path_to_copy)
+        newly_pasted_item = FsItem(utility.extract_item_name_from_path(self.path_to_copy))
         self.main_pane_selected_line_i = self.main_lines.index(newly_pasted_item)
 
         self.path_to_copy = ""
@@ -247,24 +255,26 @@ class Content:
             return
 
         format_abbreviation = ".zip"
-        if self.currently_selected_item().endswith(format_abbreviation):
+        if self.currently_selected_item().get_text().endswith(format_abbreviation):
             self.unzip(format_abbreviation)
         else:
             self.zip()
 
     def zip(self):
         logging.info("action: zip")
-        path_to_process = self.cwd + self.currently_selected_item()
-        zip_file_name = self.currently_selected_item()[:-1] if self.currently_selected_item().endswith("/") \
-            else self.currently_selected_item()
+        currently_selected_text = self.currently_selected_item().get_text()
+        path_to_process = self.cwd + currently_selected_text
+        zip_file_name = currently_selected_text[:-1] if currently_selected_text.endswith("/") \
+            else currently_selected_text
         thread = threading.Thread(target=shutil.make_archive,
                                   args=(self.cwd + zip_file_name, 'zip', path_to_process,))
         thread.start()
 
     def unzip(self, format_abbreviation):
         logging.info("action: unzip")
-        path_to_process = self.cwd + self.currently_selected_item()
-        folder_to_unpack_in = self.cwd + self.currently_selected_item()[:-len(format_abbreviation)]
+        currently_selected_text = self.currently_selected_item().get_text()
+        path_to_process = self.cwd + currently_selected_text
+        folder_to_unpack_in = self.cwd + currently_selected_text[:-len(format_abbreviation)]
         thread = threading.Thread(target=shutil.unpack_archive,
                                   args=(path_to_process, folder_to_unpack_in, 'zip'))
         thread.start()

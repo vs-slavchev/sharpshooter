@@ -15,7 +15,8 @@ class PaneManager:
         logging.debug("screen size WxH: {}x{}".format(screen_width, screen_height))
         self.pane_width = screen_width // 3
         window_y = 1
-        pane_height = screen_height - window_y
+        window_footer_height = 1
+        pane_height = screen_height - window_y - window_footer_height
 
         self.left_window = CursedWindow(1, window_y, self.pane_width - 1, pane_height)
         self.main_window = CursedWindow(self.pane_width, window_y, self.pane_width, pane_height)
@@ -25,6 +26,8 @@ class PaneManager:
         self.top_line = curses.newwin(1, self.top_line_width, 0, 1)
 
     def render_panes(self, renderable_content):
+        # todo
+        # get 3 objs from this: all are of type array of FsItem, and pass those to the respective windows
         left_lines, main_lines, right_lines, left_selected, main_selected = renderable_content
 
         self.left_window.render(left_lines, left_selected)

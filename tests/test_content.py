@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 
 from content import Content
+from fs_item import FsItem
 
 cwd = '/a/aa/aac/'
 parent_dir = '/a/aa/'
@@ -9,7 +10,7 @@ mock_directory_contents = {cwd: ['aaaa', 'aaab', 'aaac'], parent_dir: ['aaa/', '
 
 
 def mock_return_values(arg):
-    return mock_directory_contents[arg]
+    return map(lambda vl: FsItem(vl), mock_directory_contents[arg])
 
 
 class TestContent(unittest.TestCase):
@@ -85,7 +86,7 @@ class TestContent(unittest.TestCase):
                                                 parent_dir: ['aaa/', 'aab/', 'aac/']}
 
         def mock_return_values_during_paste(arg):
-            return mock_directory_contents_during_paste[arg]
+            return map(lambda vl: FsItem(vl), mock_directory_contents_during_paste[arg])
 
         mock_terminal.get_ls.side_effect = mock_return_values_during_paste
         content.path_to_copy = '/b/bb/bbb/bbbb'
