@@ -73,7 +73,8 @@ class Controller:
             self.content.toggle_mark_item()
 
     def make_new_folder(self):
-        y_position = self.pane_manager.main_window.calculate_max_line_to_render(self.content.get_num_main_lines()) + 1
+        y_position = self.pane_manager.main_window\
+                         .calculate_max_line_to_render(self.content.get_num_main_lines() - 1) + 1
         new_folder_name = self.pane_manager.render_input_textbox(y_position)
         self.content.make_new_folder(new_folder_name)
 
