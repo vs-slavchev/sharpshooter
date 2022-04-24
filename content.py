@@ -144,8 +144,8 @@ class Content:
     def open_child(self):
         logging.debug("action: open_child: {}".format(self.child_path))
         child_exists = self.child_path != ""
-        selected_is_folder = child_exists and self.currently_selected_item().is_folder()
-        if selected_is_folder:
+        selected_is_openable_folder = child_exists and self.currently_selected_item().is_folder()
+        if selected_is_openable_folder:
             self.main_pane_selected_line_i = 0
             self.cwd = self.child_path
             self.unmark_any_marked_items()

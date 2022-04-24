@@ -29,12 +29,12 @@ def get_ls(directory="."):
     logging.debug('ls {} output: {} items'.format(directory, len(fixed_lines)))
 
     # drop symbolic links, sockets, named pipes and doors
-    lines = list(filter(lambda l: not l.endswith("@") and\
-          not l.endswith("=") and\
-          not l.endswith("|") and\
-          not l.endswith(">"), fixed_lines))
+    lines = list(filter(lambda l: not l.endswith("@") and
+                        not l.endswith("=") and
+                        not l.endswith("|") and
+                        not l.endswith(">"), fixed_lines))
 
-    return map(lambda vl: FsItem(vl), lines)
+    return list(map(lambda vl: FsItem(vl), lines))
 
 
 def open_new_terminal(directory_to_open_in):
