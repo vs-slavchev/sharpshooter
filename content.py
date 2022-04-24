@@ -117,7 +117,7 @@ class Content:
         there_is_some_parent = len(self.to_path_elements()) > 0
         if there_is_some_parent:
             self.set_cwd_to_parent_directory()
-            self.marked_item_indices = []
+            self.unmark_any_marked_items()
 
     def currently_selected_item(self):
         if self.main_pane_selected_line_i >= len(self.main_lines):
@@ -148,7 +148,7 @@ class Content:
         if selected_is_folder:
             self.main_pane_selected_line_i = 0
             self.cwd = self.child_path
-            self.marked_item_indices = []
+            self.unmark_any_marked_items()
 
     def parent_directory(self):
         higher_path_elements = self.get_higher_path_elements()
@@ -198,15 +198,16 @@ class Content:
             paths_to_delete = map(lambda mii: self.cwd + self.main_lines[mii].text, self.marked_item_indices)
             for path in paths_to_delete:
                 terminal.delete(path)
-            self.marked_item_indices = []
+            self.unmark_any_marked_items()
         else:
             terminal.delete(self.child_path)
+            self.unmark_any_marked_items()
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
         terminal.make_new_folder(self.cwd + new_folder_name)
-        self.marked_item_indices = []
+        self.unmark_any_marked_items()
 
     def rename(self, old_name, new_name):
         logging.info("action: rename")
@@ -296,3 +297,6 @@ class Content:
             self.marked_item_indices.remove(self.main_pane_selected_line_i)
         else:
             self.marked_item_indices.append(self.main_pane_selected_line_i)
+
+    def unmark_any_marked_items(self):
+        self.marked_item_indices = []
