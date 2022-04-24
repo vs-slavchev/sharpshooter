@@ -69,6 +69,8 @@ class Controller:
             self.content.cut_selected()
         elif input_key == self.input_keys.zip_unzip:
             self.content.zip_unzip()
+        elif input_key == self.input_keys.toggle_mark_item:
+            self.content.toggle_mark_item()
 
     def make_new_folder(self):
         y_position = self.pane_manager.main_window.calculate_max_line_to_render(self.content.get_num_main_lines()) + 1
@@ -78,6 +80,6 @@ class Controller:
     def rename_selected(self):
         if self.content.no_main_lines_exist():
             return
-        selected_text = self.content.currently_selected_item().get_text()
-        new_name = self.pane_manager.render_input_textbox(self.content.get_main_selected_line_i(), selected_text)
-        self.content.rename(selected_text, new_name)
+        new_name = self.pane_manager.render_input_textbox(
+            self.content.get_main_selected_line_i(), self.content.currently_selected_item())
+        self.content.rename(self.content.currently_selected_item().text, new_name)

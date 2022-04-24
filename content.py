@@ -26,6 +26,8 @@ class Content:
         self.path_to_copy = ""
         self.copy_removes_source = False
 
+        self.marked_item_indices = []
+
         self.config_manager = ConfigManager()
         self.show_hidden = self.config_manager.get_show_hidden()
 
@@ -35,7 +37,7 @@ class Content:
         logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
         self.show_hidden = not self.show_hidden
 
-        if not utility.is_hidden(self.currently_selected_item().get_text()):
+        if not utility.is_hidden(self.currently_selected_item().text):
             self.recalculate_same_selected_line()
         else:
             self.select_closest_to_hidden_item()
@@ -70,7 +72,7 @@ class Content:
         pane_content = terminal.get_ls(path_to_folder)
 
         if not self.show_hidden:
-            pane_content = list(filter(lambda l: not utility.is_hidden(l.get_text()), pane_content))
+            pane_content = list(filter(lambda l: not utility.is_hidden(l.text), pane_content))
 
         return pane_content
 
@@ -80,7 +82,7 @@ class Content:
         if not self.show_hidden:
             selected_parent_item = self.get_parent_folder()
             pane_content = list(filter(
-                lambda l: not utility.is_hidden(l.get_text()) or l.get_text() == selected_parent_item, pane_content))
+                lambda l: not utility.is_hidden(l.text) or l.text == selected_parent_item, pane_content))
 
         return pane_content
 
@@ -90,7 +92,7 @@ class Content:
         self.child_path = ""
         self.child_lines = []
         if len(self.main_lines) > 0:
-            self.child_path = self.cwd + self.currently_selected_item().get_text()
+            self.child_path = self.cwd + self.currently_selected_item().text
             if utility.is_folder(self.child_path):
                 self.child_lines = self.query_pane_content(self.child_path)
             else:
@@ -100,7 +102,7 @@ class Content:
         else:
             parent_folder = self.get_parent_folder()
             logging.info("parent folder: {}".format(parent_folder))
-            self.parent_pane_selected_line_i = list(map(lambda pl: pl.get_text(), self.parent_lines))\
+            self.parent_pane_selected_line_i = list(map(lambda pl: pl.text, self.parent_lines)) \
                 .index(parent_folder)
 
     def get_parent_folder(self):
@@ -115,6 +117,7 @@ class Content:
         there_is_some_parent = len(self.to_path_elements()) > 0
         if there_is_some_parent:
             self.set_cwd_to_parent_directory()
+            self.marked_item_indices = []
 
     def currently_selected_item(self):
         if self.main_pane_selected_line_i >= len(self.main_lines):
@@ -141,10 +144,11 @@ class Content:
     def open_child(self):
         logging.debug("action: open_child: {}".format(self.child_path))
         child_exists = self.child_path != ""
-        selected_is_folder = child_exists and self.currently_selected_item().get_text().endswith("/")
+        selected_is_folder = child_exists and self.currently_selected_item().is_folder()
         if selected_is_folder:
             self.main_pane_selected_line_i = 0
             self.cwd = self.child_path
+            self.marked_item_indices = []
 
     def parent_directory(self):
         higher_path_elements = self.get_higher_path_elements()
@@ -167,22 +171,20 @@ class Content:
         return self.child_path
 
     def get_renderable_content(self):
-        # todo
-        # parent_lines_fs = map self.parent lines to an array of FsItems with the selected element (self.parent_pane_selected_line_i) set to selected
-        # same for main lines
-        # just the simple mapping for the child lines
+        for marked_index in self.marked_item_indices:
+            self.main_lines[marked_index].is_marked = True
 
-        return self.parent_lines,\
-               self.main_lines,\
-               self.child_lines,\
-               self.parent_pane_selected_line_i,\
-               self.main_pane_selected_line_i
+        return self.parent_lines, \
+            self.main_lines, \
+            self.child_lines, \
+            self.parent_pane_selected_line_i, \
+            self.main_pane_selected_line_i
 
     def get_cwd(self):
         return self.cwd
 
     def open_selected(self):
-        if self.currently_selected_item().get_text().endswith("/"):
+        if self.currently_selected_item().is_folder():
             self.open_child()
         else:
             terminal.open_file(self.get_child_path())
@@ -191,12 +193,20 @@ class Content:
         logging.info("action: delete selected")
         if self.no_main_lines_exist():
             return
-        terminal.delete(self.child_path)
+        exist_marked_items = len(self.marked_item_indices) > 0
+        if exist_marked_items:
+            paths_to_delete = map(lambda mii: self.cwd + self.main_lines[mii].text, self.marked_item_indices)
+            for path in paths_to_delete:
+                terminal.delete(path)
+            self.marked_item_indices = []
+        else:
+            terminal.delete(self.child_path)
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
         terminal.make_new_folder(self.cwd + new_folder_name)
+        self.marked_item_indices = []
 
     def rename(self, old_name, new_name):
         logging.info("action: rename")
@@ -255,24 +265,22 @@ class Content:
             return
 
         format_abbreviation = ".zip"
-        if self.currently_selected_item().get_text().endswith(format_abbreviation):
+        if self.currently_selected_item().text.endswith(format_abbreviation):
             self.unzip(format_abbreviation)
         else:
             self.zip()
 
     def zip(self):
         logging.info("action: zip")
-        currently_selected_text = self.currently_selected_item().get_text()
-        path_to_process = self.cwd + currently_selected_text
-        zip_file_name = currently_selected_text[:-1] if currently_selected_text.endswith("/") \
-            else currently_selected_text
+        path_to_process = self.cwd + self.currently_selected_item().text
+        zip_file_name = self.currently_selected_item().get_clean_name()
         thread = threading.Thread(target=shutil.make_archive,
                                   args=(self.cwd + zip_file_name, 'zip', path_to_process,))
         thread.start()
 
     def unzip(self, format_abbreviation):
         logging.info("action: unzip")
-        currently_selected_text = self.currently_selected_item().get_text()
+        currently_selected_text = self.currently_selected_item().text
         path_to_process = self.cwd + currently_selected_text
         folder_to_unpack_in = self.cwd + currently_selected_text[:-len(format_abbreviation)]
         thread = threading.Thread(target=shutil.unpack_archive,
@@ -281,3 +289,10 @@ class Content:
 
     def open_new_terminal(self):
         terminal.open_new_terminal(self.cwd)
+
+    def toggle_mark_item(self):
+        is_already_marked = self.main_pane_selected_line_i in self.marked_item_indices
+        if is_already_marked:
+            self.marked_item_indices.remove(self.main_pane_selected_line_i)
+        else:
+            self.marked_item_indices.append(self.main_pane_selected_line_i)

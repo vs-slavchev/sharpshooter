@@ -23,8 +23,6 @@ class CursedWindow:
     def get_window(self):
         return self.window
 
-    # todo
-    # take 1 arg: an array of FsItems, use each item's fields to see if it is selected or marked
     def render(self, fs_content, content_line_selected_i):
         self.fs_content = fs_content
         last_window_line_index = self.height - 2
@@ -44,8 +42,8 @@ class CursedWindow:
         if number_lines > 0:
             self.render_selected_line(content_line_selected_i)
 
-    def render_without_selected(self, text_content):
-        self.fs_content = text_content
+    def render_without_selected(self, fs_content):
+        self.fs_content = fs_content
         number_lines = len(self.fs_content)
         logging.debug("rendering {} lines".format(number_lines))
         for line_i in range(self.calculate_max_line_to_render(number_lines)):
@@ -58,20 +56,24 @@ class CursedWindow:
     def render_line(self, screen_line_i):
         content_line_to_render_index = screen_line_i + self.lines_render_offset
         try:
-            text = self.fs_content[content_line_to_render_index].get_text()
+            fs_item = self.fs_content[content_line_to_render_index]
         except IndexError as index_error:
             logging.error(index_error)
             return
-        text_attribute = self.calculate_attributes(text)
-        self.add_string(screen_line_i, text, text_attribute)
+        text_attribute = self.calculate_attributes(fs_item)
+        self.add_string(screen_line_i, fs_item.text, text_attribute)
 
     # calculates the attributes for how the text should be rendered based on the text content
-    def calculate_attributes(self, text):
+    def calculate_attributes(self, fs_item):
+        text = fs_item.text
         # ordinary files are bold
         text_attribute = curses.A_BOLD
 
         if len(text) == 0:
             return text_attribute
+
+        if fs_item.is_marked:
+            text_attribute = curses.A_UNDERLINE
 
         # hidden files are normal font
         if text[0] == '.':
@@ -103,12 +105,11 @@ class CursedWindow:
 
         y_to_draw_at = (content_line_selected_i % len(self.fs_content)) - self.lines_render_offset
 
-        text = self.fs_content[content_line_selected_i].get_text()
-        text_attribute = self.calculate_attributes(text)
+        text_attribute = self.calculate_attributes(self.fs_content[content_line_selected_i])
 
         text_attribute = text_attribute | curses.A_REVERSE
 
-        self.add_string(y_to_draw_at, text, text_attribute)
+        self.add_string(y_to_draw_at, self.fs_content[content_line_selected_i].text, text_attribute)
         # fill the rest of the line after the last addition
         self.window.chgat(-1, text_attribute)
 

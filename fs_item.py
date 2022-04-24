@@ -5,17 +5,18 @@
 
 class FsItem:
 
-    def __init__(self, text, marked=False):
+    def __init__(self, text):
         self.text = text
-        self.marked = marked
-
-    def get_text(self):
-        return self.text
-
-    def is_marked(self):
-        return self.marked
+        self.is_marked = False
 
     def __eq__(self, other):
         if isinstance(other, FsItem):
             return self.text == other.text
         return False
+
+    def is_folder(self):
+        return self.text.endswith("/")
+
+    # cleans the slash in the end, which folders have
+    def get_clean_name(self):
+        return self.text[:-1] if self.is_folder() else self.text

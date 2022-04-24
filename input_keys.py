@@ -27,4 +27,5 @@ class InputKeys:
         self.paste = config_manager.get_key_for('paste')
         self.cut = config_manager.get_key_for('cut')
         self.zip_unzip = config_manager.get_key_for('zip_unzip')
+        self.toggle_mark_item = config_manager.get_key_for('toggle_mark_item')
 

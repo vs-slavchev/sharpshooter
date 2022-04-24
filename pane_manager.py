@@ -8,6 +8,8 @@ import curses
 from cursed_window import CursedWindow
 from curses.textpad import Textbox, rectangle
 
+from fs_item import FsItem
+
 
 class PaneManager:
     def __init__(self, standard_screen):
@@ -26,8 +28,6 @@ class PaneManager:
         self.top_line = curses.newwin(1, self.top_line_width, 0, 1)
 
     def render_panes(self, renderable_content):
-        # todo
-        # get 3 objs from this: all are of type array of FsItem, and pass those to the respective windows
         left_lines, main_lines, right_lines, left_selected, main_selected = renderable_content
 
         self.left_window.render(left_lines, left_selected)
@@ -49,17 +49,13 @@ class PaneManager:
         self.right_window.clear()
         self.top_line.clear()
 
-    def render_input_textbox(self, y_position, placeholder=""):
+    def render_input_textbox(self, y_position, placeholder=FsItem("")):
         edit_window = curses.newwin(1, self.pane_width - 2, y_position + 1, self.pane_width + 1)
         text_attribute = self.main_window.calculate_attributes(placeholder)
         self.main_window.get_window().addnstr(y_position, 0, ">", 1, text_attribute)
         self.main_window.refresh()
 
-        # rename folders without the slash at the end
-        if placeholder.endswith("/"):
-            placeholder = placeholder[:-1]
-
-        edit_window.addstr(0, 0, placeholder.encode('utf-8'))
+        edit_window.addstr(0, 0, placeholder.get_clean_name().encode('utf-8'))
         box = Textbox(edit_window)
 
         box.edit()

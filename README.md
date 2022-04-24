@@ -24,6 +24,10 @@ Simple to configure and hack at.
 - [x] easy extract/archive
 - [ ] select multiple items
 
+### How to use
+
+- edit the `.sharpshooter_config` in your home dir with your preferred hotkeys
+
 # Technologies
 
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
