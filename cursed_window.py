@@ -72,12 +72,12 @@ class CursedWindow:
         if len(text) == 0:
             return text_attribute
 
-        if fs_item.is_marked:
-            text_attribute = curses.A_UNDERLINE
-
         # hidden files are normal font
         if text[0] == '.':
             text_attribute = curses.A_NORMAL
+
+        if fs_item.is_marked:
+            text_attribute = text_attribute | curses.A_UNDERLINE
 
         # folders are also colored
         if text[-1] == '/':
