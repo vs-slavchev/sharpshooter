@@ -206,10 +206,9 @@ class Content:
             paths_to_delete = map(lambda mii: self.cwd + self.main_lines[mii].text, self.marked_item_indices)
             for path in paths_to_delete:
                 terminal.delete(path)
-            self.unmark_any_marked_items()
         else:
             terminal.delete(self.child_path)
-            self.unmark_any_marked_items()
+        self.unmark_any_marked_items()
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
     def make_new_folder(self, new_folder_name):
