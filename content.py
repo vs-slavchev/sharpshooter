@@ -23,7 +23,7 @@ class Content:
         self.parent_pane_selected_line_i = 0
         self.main_pane_selected_line_i = 0
 
-        self.path_to_copy = ""
+        self.paths_to_copy = []
         self.copy_removes_source = False
 
         self.marked_item_indices = []
@@ -224,39 +224,45 @@ class Content:
         new_path = self.cwd + new_name
         terminal.move(old_path, new_path)
 
-    def copy_selected(self):
+    def copy(self):
         logging.info("action: copy")
         if self.no_main_lines_exist():
             return
-        self.path_to_copy = self.child_path
+        #if self.exist_marked_items():
+
+        self.paths_to_copy = [self.child_path]
         self.copy_removes_source = False
-        logging.info("copy clipboard: {}".format(self.path_to_copy))
+        logging.info("copy clipboard: {}".format(self.paths_to_copy))
 
     def paste(self):
         logging.info("action: paste")
-        if self.path_to_copy == "":
+        if len(self.paths_to_copy) == 0:
             return
         folder_to_paste_in = self.cwd
 
-        if self.copy_removes_source:
-            terminal.move(self.path_to_copy, folder_to_paste_in)
+        terminal_function = terminal.move if self.copy_removes_source else terminal.paste
+        for path in self.paths_to_copy:
+            terminal_function(path, folder_to_paste_in)
+
+        self.recalculate_content()
+
+        if len(self.paths_to_copy) == 1:
+            self.main_lines = self.query_pane_content(self.cwd)
+            newly_pasted_item = FsItem(utility.extract_item_name_from_path(self.paths_to_copy[0]))
+            self.main_pane_selected_line_i = self.main_lines.index(newly_pasted_item)
         else:
-            terminal.paste(self.path_to_copy, folder_to_paste_in)
+            self.main_pane_selected_line_i = 0
 
-        self.main_lines = self.query_pane_content(self.cwd)
-        newly_pasted_item = FsItem(utility.extract_item_name_from_path(self.path_to_copy))
-        self.main_pane_selected_line_i = self.main_lines.index(newly_pasted_item)
-
-        self.path_to_copy = ""
+        self.paths_to_copy = []
         self.copy_removes_source = False
 
     def cut_selected(self):
         logging.info("action: cut")
         if self.no_main_lines_exist():
             return
-        self.path_to_copy = self.child_path
+        self.paths_to_copy = [self.child_path]
         self.copy_removes_source = True
-        logging.info("cut clipboard: {}".format(self.path_to_copy))
+        logging.info("cut clipboard: {}".format(self.paths_to_copy))
 
     def zip_unzip(self):
         logging.info("action: zip unzip")

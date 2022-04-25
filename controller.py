@@ -62,7 +62,7 @@ class Controller:
         elif input_key == self.input_keys.rename:
             self.rename_selected()
         elif input_key == self.input_keys.copy:
-            self.content.copy_selected()
+            self.content.copy()
         elif input_key == self.input_keys.paste:
             self.content.paste()
         elif input_key == self.input_keys.cut:

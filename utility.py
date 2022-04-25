@@ -14,6 +14,6 @@ def is_hidden(line):
 
 
 def extract_item_name_from_path(path):
-    item_name_search = re.search('.*/([-_a-zA-Z0-9.\(\)]+/?)$', path)
+    item_name_search = re.search('.*/([-_. a-zA-Z0-9\(\)]+/?)$', path)
     if item_name_search:
         return item_name_search.group(1)

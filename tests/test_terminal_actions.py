@@ -35,7 +35,7 @@ class TestTerminalActions(unittest.TestCase):
 
         content.cut_selected()
 
-        self.assertEqual(cwd + 'aaaa', content.path_to_copy)
+        self.assertEqual([cwd + 'aaaa'], content.paths_to_copy)
         self.assertTrue(content.copy_removes_source)
 
     @mock.patch('content.terminal')
@@ -45,9 +45,9 @@ class TestTerminalActions(unittest.TestCase):
         content = Content()
         content.main_pane_selected_line_i = 0
 
-        content.copy_selected()
+        content.copy()
 
-        self.assertEqual(cwd + 'aaaa', content.path_to_copy)
+        self.assertEqual([cwd + 'aaaa'], content.paths_to_copy)
         self.assertFalse(content.copy_removes_source)
 
     @mock.patch('content.terminal')

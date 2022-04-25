@@ -33,7 +33,7 @@ class TestEmptyFolder(unittest.TestCase):
 
         content.cut_selected()
 
-        self.assertEqual('', content.path_to_copy)
+        self.assertEqual([], content.paths_to_copy)
 
     @mock.patch('content.terminal')
     def test_copy_is_not_started_when_folder_is_empty(self, mock_terminal):
@@ -41,9 +41,9 @@ class TestEmptyFolder(unittest.TestCase):
         mock_terminal.get_ls.side_effect = mock_return_values
         content = Content()
 
-        content.copy_selected()
+        content.copy()
 
-        self.assertEqual('', content.path_to_copy)
+        self.assertEqual([], content.paths_to_copy)
 
     @mock.patch('content.terminal')
     def test_rename_is_not_called_when_folder_is_empty(self, mock_terminal):

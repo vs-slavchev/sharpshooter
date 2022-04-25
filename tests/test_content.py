@@ -130,7 +130,7 @@ class TestContent(unittest.TestCase):
             return list(map(lambda vl: FsItem(vl), mock_directory_contents_during_paste[arg]))
 
         mock_terminal.get_ls.side_effect = mock_return_values_during_paste
-        content.path_to_copy = '/b/bb/bbb/bbbb'
+        content.paths_to_copy = ['/b/bb/bbb/bbbb']
 
         content.paste()
 
