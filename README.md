@@ -22,7 +22,7 @@ Simple to configure and hack at.
 - [x] paste
 - [x] cut
 - [x] easy extract/archive
-- [ ] select multiple items
+- [x] select multiple items
 
 ### How to use
 
