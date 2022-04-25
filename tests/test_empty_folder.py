@@ -31,7 +31,7 @@ class TestEmptyFolder(unittest.TestCase):
         mock_terminal.get_ls.side_effect = mock_return_values
         content = Content()
 
-        content.cut_selected()
+        content.cut()
 
         self.assertEqual([], content.paths_to_copy)
 

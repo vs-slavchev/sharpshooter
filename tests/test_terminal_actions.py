@@ -33,7 +33,7 @@ class TestTerminalActions(unittest.TestCase):
         content = Content()
         content.main_pane_selected_line_i = 0
 
-        content.cut_selected()
+        content.cut()
 
         self.assertEqual([cwd + 'aaaa'], content.paths_to_copy)
         self.assertTrue(content.copy_removes_source)

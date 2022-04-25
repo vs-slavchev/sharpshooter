@@ -66,7 +66,7 @@ class Controller:
         elif input_key == self.input_keys.paste:
             self.content.paste()
         elif input_key == self.input_keys.cut:
-            self.content.cut_selected()
+            self.content.cut()
         elif input_key == self.input_keys.zip_unzip:
             self.content.zip_unzip()
         elif input_key == self.input_keys.toggle_mark_item:

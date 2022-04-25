@@ -108,7 +108,7 @@ class Content:
         self.child_path = ""
         self.child_lines = []
         if len(self.main_lines) > 0:
-            self.child_path = self.cwd + self.currently_selected_item().text
+            self.child_path = self.to_path(self.currently_selected_item().text)
             if utility.is_folder(self.child_path):
                 self.child_lines = self.query_pane_content(self.child_path)
             else:
@@ -203,7 +203,7 @@ class Content:
         if self.no_main_lines_exist():
             return
         if self.exist_marked_items():
-            paths_to_delete = map(lambda mii: self.cwd + self.main_lines[mii].text, self.marked_item_indices)
+            paths_to_delete = map(lambda mii: self.to_path(self.main_lines[mii].text), self.marked_item_indices)
             for path in paths_to_delete:
                 terminal.delete(path)
         else:
@@ -213,26 +213,39 @@ class Content:
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
-        terminal.make_new_folder(self.cwd + new_folder_name)
+        terminal.make_new_folder(self.to_path(new_folder_name))
         self.unmark_any_marked_items()
 
     def rename(self, old_name, new_name):
         logging.info("action: rename")
         if self.no_main_lines_exist():
             return
-        old_path = self.cwd + old_name
-        new_path = self.cwd + new_name
+        old_path = self.to_path(old_name)
+        new_path = self.to_path(new_name)
         terminal.move(old_path, new_path)
 
     def copy(self):
         logging.info("action: copy")
         if self.no_main_lines_exist():
             return
-        #if self.exist_marked_items():
-
-        self.paths_to_copy = [self.child_path]
+        self.prepare_paths_to_copy()
         self.copy_removes_source = False
         logging.info("copy clipboard: {}".format(self.paths_to_copy))
+
+    def cut(self):
+        logging.info("action: cut")
+        if self.no_main_lines_exist():
+            return
+        self.prepare_paths_to_copy()
+        self.copy_removes_source = True
+        logging.info("cut clipboard: {}".format(self.paths_to_copy))
+
+    def prepare_paths_to_copy(self):
+        if self.exist_marked_items():
+            self.paths_to_copy = list(
+                map(lambda mii: self.to_path(self.main_lines[mii].text), self.marked_item_indices))
+        else:
+            self.paths_to_copy = [self.child_path]
 
     def paste(self):
         logging.info("action: paste")
@@ -256,14 +269,6 @@ class Content:
         self.paths_to_copy = []
         self.copy_removes_source = False
 
-    def cut_selected(self):
-        logging.info("action: cut")
-        if self.no_main_lines_exist():
-            return
-        self.paths_to_copy = [self.child_path]
-        self.copy_removes_source = True
-        logging.info("cut clipboard: {}".format(self.paths_to_copy))
-
     def zip_unzip(self):
         logging.info("action: zip unzip")
         if self.no_main_lines_exist():
@@ -277,17 +282,17 @@ class Content:
 
     def zip(self):
         logging.info("action: zip")
-        path_to_process = self.cwd + self.currently_selected_item().text
+        path_to_process = self.to_path(self.currently_selected_item().text)
         zip_file_name = self.currently_selected_item().get_clean_name()
         thread = threading.Thread(target=shutil.make_archive,
-                                  args=(self.cwd + zip_file_name, 'zip', path_to_process,))
+                                  args=(self.to_path(zip_file_name), 'zip', path_to_process,))
         thread.start()
 
     def unzip(self, format_abbreviation):
         logging.info("action: unzip")
         currently_selected_text = self.currently_selected_item().text
-        path_to_process = self.cwd + currently_selected_text
-        folder_to_unpack_in = self.cwd + currently_selected_text[:-len(format_abbreviation)]
+        path_to_process = self.to_path(currently_selected_text)
+        folder_to_unpack_in = self.to_path(currently_selected_text[:-len(format_abbreviation)])
         thread = threading.Thread(target=shutil.unpack_archive,
                                   args=(path_to_process, folder_to_unpack_in, 'zip'))
         thread.start()
@@ -316,3 +321,6 @@ class Content:
 
     def unmark_any_marked_items(self):
         self.marked_item_indices = []
+
+    def to_path(self, fs_item_name):
+        return self.cwd + fs_item_name
