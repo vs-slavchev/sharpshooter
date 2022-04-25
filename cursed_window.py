@@ -58,7 +58,7 @@ class CursedWindow:
         try:
             fs_item = self.fs_content[content_line_to_render_index]
         except IndexError as index_error:
-            logging.error(index_error)
+            logging.error("cannot render line: {}".format(index_error))
             return
         text_attribute = self.calculate_attributes(fs_item)
         self.add_string(screen_line_i, fs_item.text, text_attribute)

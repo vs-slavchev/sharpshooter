@@ -78,6 +78,7 @@ class Controller:
         new_folder_name = self.pane_manager.render_input_textbox(y_position)
         self.content.make_new_folder(new_folder_name)
 
+    # todo fix bug: use index in the rendered view and not in the items list
     def rename_selected(self):
         if self.content.no_main_lines_exist():
             return

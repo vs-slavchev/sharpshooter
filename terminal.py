@@ -69,13 +69,23 @@ def open_file(full_path):
             logging.warning("could not execute open file command: {}".format(command_array))
 
 
+# todo if a file/dir with the same name already exists in trash then it won't succeed
 def delete(path_to_delete):
     home_of_logged_in_user = str(Path.home())
-    terminal_command = ["mv", path_to_delete, home_of_logged_in_user + "/.local/share/Trash/files/"]
+    terminal_command = ["mv", path_to_delete, "{}/.local/share/Trash/files/".format(home_of_logged_in_user)]
+    execute_terminal_call(terminal_command)
+
+
+def permanent_delete(path_to_delete):
+    terminal_command = ["rm", path_to_delete]
+    if utility.is_folder(path_to_delete):
+        terminal_command.insert(1, "-r")
     execute_terminal_call(terminal_command)
 
 
 def make_new_folder(path_of_folder_to_make):
+    if utility.is_folder(path_of_folder_to_make):
+        path_of_folder_to_make = path_of_folder_to_make[:-1]
     terminal_command = ["mkdir", path_of_folder_to_make]
     execute_terminal_call(terminal_command)
 
@@ -85,7 +95,7 @@ def move(old_path, new_path):
     execute_terminal_call(terminal_command)
 
 
-def paste(old_path, new_path):
+def copy_paste(old_path, new_path):
     terminal_command = ["cp", old_path, new_path]
     if utility.is_folder(old_path):
         terminal_command.insert(1, "-r")

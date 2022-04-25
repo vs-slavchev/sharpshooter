@@ -37,6 +37,8 @@ class Content:
         logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
         self.show_hidden = not self.show_hidden
 
+        if self.no_main_lines_exist():
+            return
         if not self.currently_selected_item().is_hidden():
             self.recalculate_same_selected_line()
         else:
@@ -63,7 +65,7 @@ class Content:
         from_selected_to_start = list(range(self.main_pane_selected_line_i - 1, 0, -1))
         from_selected_to_end = list(range(self.main_pane_selected_line_i + 1, len(self.main_lines) - 1, 1))
         indices_to_iterate = from_selected_to_start + from_selected_to_end
-        closest_visible_fs_item = None # todo what if there are only hidden files in folder?
+        closest_visible_fs_item = None
         for fs_item_i in indices_to_iterate:
             fs_item = self.main_lines[fs_item_i]
             if not fs_item.is_hidden():
@@ -137,6 +139,8 @@ class Content:
     def currently_selected_item(self):
         if self.main_pane_selected_line_i >= len(self.main_lines):
             self.main_pane_selected_line_i = len(self.main_lines) - 1
+        if self.main_pane_selected_line_i < 0:
+            self.main_pane_selected_line_i = 0
         return self.main_lines[self.main_pane_selected_line_i]
 
     def set_cwd_to_parent_directory(self):
@@ -203,7 +207,7 @@ class Content:
         if self.no_main_lines_exist():
             return
         if self.exist_marked_items():
-            paths_to_delete = map(lambda mii: self.to_path(self.main_lines[mii].text), self.marked_item_indices)
+            paths_to_delete = self.get_paths_of_marked_items()
             for path in paths_to_delete:
                 terminal.delete(path)
         else:
@@ -242,8 +246,7 @@ class Content:
 
     def prepare_paths_to_copy(self):
         if self.exist_marked_items():
-            self.paths_to_copy = list(
-                map(lambda mii: self.to_path(self.main_lines[mii].text), self.marked_item_indices))
+            self.paths_to_copy = self.get_paths_of_marked_items()
         else:
             self.paths_to_copy = [self.child_path]
 
@@ -253,7 +256,7 @@ class Content:
             return
         folder_to_paste_in = self.cwd
 
-        terminal_function = terminal.move if self.copy_removes_source else terminal.paste
+        terminal_function = terminal.move if self.copy_removes_source else terminal.copy_paste
         for path in self.paths_to_copy:
             terminal_function(path, folder_to_paste_in)
 
@@ -268,6 +271,7 @@ class Content:
 
         self.paths_to_copy = []
         self.copy_removes_source = False
+        self.unmark_any_marked_items()
 
     def zip_unzip(self):
         logging.info("action: zip unzip")
@@ -278,12 +282,31 @@ class Content:
         if self.currently_selected_item().text.endswith(format_abbreviation):
             self.unzip(format_abbreviation)
         else:
-            self.zip()
+            if self.exist_marked_items():
+                self.zip_marked_items()
+            else:
+                self.zip_selected_item()
 
-    def zip(self):
-        logging.info("action: zip")
+    def zip_selected_item(self):
+        logging.info("action: zip selected")
         path_to_process = self.to_path(self.currently_selected_item().text)
         zip_file_name = self.currently_selected_item().get_clean_name()
+        self.perform_zip(path_to_process, zip_file_name)
+
+    def zip_marked_items(self):
+        logging.info("action: zip marked")
+        temp_marked_files_folder_name = 'temp_marked_files_folder/'
+        temp_folder_path = self.to_path(temp_marked_files_folder_name)
+        terminal.make_new_folder(temp_folder_path)
+        for marked_path in self.get_paths_of_marked_items():
+            terminal.copy_paste(marked_path, temp_folder_path)
+        path_to_process = temp_folder_path
+        zip_file_name = 'archive_{}'.format(utility.now())
+        self.perform_zip(path_to_process, zip_file_name)
+        terminal.permanent_delete(temp_folder_path)
+        self.unmark_any_marked_items()
+
+    def perform_zip(self, path_to_process, zip_file_name):
         thread = threading.Thread(target=shutil.make_archive,
                                   args=(self.to_path(zip_file_name), 'zip', path_to_process,))
         thread.start()
@@ -315,6 +338,9 @@ class Content:
 
     def get_main_selected_line_i(self):
         return self.main_pane_selected_line_i
+
+    def get_paths_of_marked_items(self):
+        return list(map(lambda mii: self.to_path(self.main_lines[mii].text), self.marked_item_indices))
 
     def no_main_lines_exist(self):
         return len(self.main_lines) <= 0
