@@ -37,7 +37,7 @@ class Content:
         logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
         self.show_hidden = not self.show_hidden
 
-        if not utility.is_hidden(self.currently_selected_item().text):
+        if not self.currently_selected_item().is_hidden():
             self.recalculate_same_selected_line()
         else:
             self.select_closest_to_hidden_item()
@@ -47,32 +47,48 @@ class Content:
         self.config_manager.set_config_settings_value('show_hidden', value_to_write)
 
     # the position of the selected line might change if items before it are hidden, but we want the same item
-    # to be selected after hiding or showing
+    # to be selected after either hiding or showing
     def recalculate_same_selected_line(self):
+        marked_fs_items = self.get_marked_items()
         selected_item = self.currently_selected_item()
+
         self.main_lines = self.query_pane_content(self.cwd)
+
         self.main_pane_selected_line_i = self.main_lines.index(selected_item)
+        self.repopulate_marked_item_indices(marked_fs_items)
 
     # hiding a hidden item; only happens when hiding because only then can a hidden item be selected
     def select_closest_to_hidden_item(self):
+        marked_fs_items = self.get_marked_items()
         from_selected_to_start = list(range(self.main_pane_selected_line_i - 1, 0, -1))
         from_selected_to_end = list(range(self.main_pane_selected_line_i + 1, len(self.main_lines) - 1, 1))
         indices_to_iterate = from_selected_to_start + from_selected_to_end
-        closest_visible_item = ""
-        for item_i in indices_to_iterate:
-            item = self.main_lines[item_i]
-            if not utility.is_hidden(item):
-                closest_visible_item = item
+        closest_visible_fs_item = None # todo what if there are only hidden files in folder?
+        for fs_item_i in indices_to_iterate:
+            fs_item = self.main_lines[fs_item_i]
+            if not fs_item.is_hidden():
+                closest_visible_fs_item = fs_item
                 break
+
         self.main_lines = self.query_pane_content(self.cwd)
-        self.main_pane_selected_line_i = self.main_lines.index(closest_visible_item)
+
+        self.main_pane_selected_line_i = self.main_lines.index(closest_visible_fs_item)
+        self.repopulate_marked_item_indices(marked_fs_items)
+
+    def get_marked_items(self):
+        return list(map(lambda mii: self.main_lines[mii], self.marked_item_indices))
+
+    # repopulate the marked item indices list by mapping marked fs items back to an index if they are still visible
+    def repopulate_marked_item_indices(self, marked_fs_items):
+        self.unmark_any_marked_items()
+        self.marked_item_indices = [self.main_lines.index(mi) for mi in marked_fs_items if mi in self.main_lines]
 
     # returns the lines that represent the files and folders in the path_to_folder
     def query_pane_content(self, path_to_folder):
         pane_content = terminal.get_ls(path_to_folder)
 
         if not self.show_hidden:
-            pane_content = list(filter(lambda l: not utility.is_hidden(l.text), pane_content))
+            pane_content = list(filter(lambda fs_item: not fs_item.is_hidden(), pane_content))
 
         return pane_content
 
@@ -82,7 +98,7 @@ class Content:
         if not self.show_hidden:
             selected_parent_item = self.get_parent_folder()
             pane_content = list(filter(
-                lambda l: not utility.is_hidden(l.text) or l.text == selected_parent_item, pane_content))
+                lambda fs_item: not fs_item.is_hidden() or fs_item.text == selected_parent_item, pane_content))
 
         return pane_content
 
@@ -102,8 +118,7 @@ class Content:
         else:
             parent_folder = self.get_parent_folder()
             logging.info("parent folder: {}".format(parent_folder))
-            self.parent_pane_selected_line_i = list(map(lambda pl: pl.text, self.parent_lines)) \
-                .index(parent_folder)
+            self.parent_pane_selected_line_i = list(map(lambda pl: pl.text, self.parent_lines)).index(parent_folder)
 
     def get_parent_folder(self):
         path_elements = self.to_path_elements()
@@ -167,9 +182,6 @@ class Content:
         only_path_elements = list(filter(lambda path_elem: len(path_elem) > 0, higher_folders))
         return only_path_elements
 
-    def get_child_path(self):
-        return self.child_path
-
     def get_renderable_content(self):
         for marked_index in self.marked_item_indices:
             self.main_lines[marked_index].is_marked = True
@@ -180,21 +192,17 @@ class Content:
             self.parent_pane_selected_line_i, \
             self.main_pane_selected_line_i
 
-    def get_cwd(self):
-        return self.cwd
-
     def open_selected(self):
         if self.currently_selected_item().is_folder():
             self.open_child()
         else:
-            terminal.open_file(self.get_child_path())
+            terminal.open_file(self.child_path)
 
     def delete_selected(self):
         logging.info("action: delete selected")
         if self.no_main_lines_exist():
             return
-        exist_marked_items = len(self.marked_item_indices) > 0
-        if exist_marked_items:
+        if self.exist_marked_items():
             paths_to_delete = map(lambda mii: self.cwd + self.main_lines[mii].text, self.marked_item_indices)
             for path in paths_to_delete:
                 terminal.delete(path)
@@ -217,20 +225,11 @@ class Content:
         new_path = self.cwd + new_name
         terminal.move(old_path, new_path)
 
-    def get_num_main_lines(self):
-        return len(self.main_lines)
-
-    def get_main_selected_line_i(self):
-        return self.main_pane_selected_line_i
-
-    def no_main_lines_exist(self):
-        return len(self.main_lines) <= 0
-
     def copy_selected(self):
         logging.info("action: copy")
         if self.no_main_lines_exist():
             return
-        self.path_to_copy = self.get_child_path()
+        self.path_to_copy = self.child_path
         self.copy_removes_source = False
         logging.info("copy clipboard: {}".format(self.path_to_copy))
 
@@ -256,7 +255,7 @@ class Content:
         logging.info("action: cut")
         if self.no_main_lines_exist():
             return
-        self.path_to_copy = self.get_child_path()
+        self.path_to_copy = self.child_path
         self.copy_removes_source = True
         logging.info("cut clipboard: {}".format(self.path_to_copy))
 
@@ -297,6 +296,18 @@ class Content:
             self.marked_item_indices.remove(self.main_pane_selected_line_i)
         else:
             self.marked_item_indices.append(self.main_pane_selected_line_i)
+
+    def exist_marked_items(self):
+        return len(self.marked_item_indices) > 0
+
+    def get_num_main_lines(self):
+        return len(self.main_lines)
+
+    def get_main_selected_line_i(self):
+        return self.main_pane_selected_line_i
+
+    def no_main_lines_exist(self):
+        return len(self.main_lines) <= 0
 
     def unmark_any_marked_items(self):
         self.marked_item_indices = []

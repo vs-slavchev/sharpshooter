@@ -10,7 +10,7 @@ mock_directory_contents = {cwd: [], parent_dir: ['aaa/', 'aab/', 'aac/']}
 
 
 def mock_return_values(arg):
-    return map(lambda vl: FsItem(vl), mock_directory_contents[arg])
+    return list(map(lambda vl: FsItem(vl), mock_directory_contents[arg]))
 
 
 class TestEmptyFolder(unittest.TestCase):

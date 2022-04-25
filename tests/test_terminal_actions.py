@@ -10,7 +10,7 @@ mock_directory_contents = {cwd: ['aaaa', 'aaab', 'aaac'], parent_dir: ['aaa/', '
 
 
 def mock_return_values(arg):
-    return map(lambda vl: FsItem(vl), mock_directory_contents[arg])
+    return list(map(lambda vl: FsItem(vl), mock_directory_contents[arg]))
 
 
 class TestTerminalActions(unittest.TestCase):

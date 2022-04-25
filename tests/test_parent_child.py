@@ -11,7 +11,7 @@ mock_directory_contents = {cwd: ['aaaa/', 'aaab/', 'aaac/'], parent_dir: ['aaa/'
 
 
 def mock_return_values(arg):
-    return map(lambda vl: FsItem(vl), mock_directory_contents[arg])
+    return list(map(lambda vl: FsItem(vl), mock_directory_contents[arg]))
 
 
 class TestContent(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestContent(unittest.TestCase):
         content.open_child()
         content.recalculate_content()
 
-        self.assertEqual(content.marked_item_indices, [])
+        self.assertEqual([], content.marked_item_indices)
 
 
 if __name__ == '__main__':

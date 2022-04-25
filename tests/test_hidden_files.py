@@ -10,60 +10,111 @@ mock_directory_contents = {cwd: ['aaaa', '.aaab', 'aaac', '.aaad'], parent_dir: 
 
 
 def mock_return_values(arg):
-    return map(lambda vl: FsItem(vl), mock_directory_contents[arg])
+    return list(map(lambda vl: FsItem(vl), mock_directory_contents[arg]))
 
 
 class TestHiddenFiles(unittest.TestCase):
 
+    @mock.patch('content.ConfigManager')
     @mock.patch('content.terminal')
-    def test_last_line_is_selected_after_hiding_hidden_files_and_last_line_was_selected(self, mock_terminal):
+    def test_last_line_is_selected_after_hiding_hidden_files_and_last_line_was_selected(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.get_ls.side_effect = mock_return_values
+        self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 3
-        content.show_hidden = True
 
         content.toggle_show_hidden()
 
         self.assertEqual(1, content.main_pane_selected_line_i)
 
+    @mock.patch('content.ConfigManager')
     @mock.patch('content.terminal')
-    def test_same_not_hidden_line_is_selected_after_hiding_hidden_files_and_its_index_changed(self, mock_terminal):
+    def test_same_not_hidden_line_is_selected_after_hiding_hidden_files_and_its_index_changed(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.get_ls.side_effect = mock_return_values
+        self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 2
-        content.show_hidden = True
 
         content.toggle_show_hidden()
 
         self.assertEqual(1, content.main_pane_selected_line_i)
 
+    @mock.patch('content.ConfigManager')
     @mock.patch('content.terminal')
-    def test_first_not_hidden_line_is_selected_after_hiding_hidden_files(self, mock_terminal):
+    def test_first_not_hidden_line_is_selected_after_hiding_hidden_files(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.get_ls.side_effect = mock_return_values
+        self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 0
-        content.show_hidden = True
 
         content.toggle_show_hidden()
 
         self.assertEqual(0, content.main_pane_selected_line_i)
 
+    @mock.patch('content.ConfigManager')
     @mock.patch('content.terminal')
-    def test_hidden_parent_line_is_still_selected_after_hiding_hidden_files(self, mock_terminal):
+    def test_hidden_parent_line_is_still_selected_after_hiding_hidden_files(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.get_ls.side_effect = mock_return_values
+        self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 0
         content.parent_pane_selected_line_i = 3
-        content.show_hidden = True
 
         content.toggle_show_hidden()
         content.recalculate_content()
 
         self.assertEqual(2, content.parent_pane_selected_line_i)
+
+    @mock.patch('content.ConfigManager')
+    @mock.patch('content.terminal')
+    def test_same_not_hidden_line_is_marked_after_hiding_hidden_files_and_its_index_changed(self, mock_terminal, mock_config_manager_class):
+        mock_terminal.provide_initial_cwd.return_value = cwd
+        mock_terminal.get_ls.side_effect = mock_return_values
+        self.set_show_hidden(mock_config_manager_class, True)
+        content = Content()
+        content.main_pane_selected_line_i = 2
+        content.toggle_mark_item()
+
+        content.toggle_show_hidden()
+
+        self.assertEqual([1], content.marked_item_indices)
+
+    @mock.patch('content.ConfigManager')
+    @mock.patch('content.terminal')
+    def test_hidden_line_is_UNmarked_after_hiding_hidden_files(self, mock_terminal, mock_config_manager_class):
+        mock_terminal.provide_initial_cwd.return_value = cwd
+        mock_terminal.get_ls.side_effect = mock_return_values
+        self.set_show_hidden(mock_config_manager_class, True)
+        content = Content()
+        content.main_pane_selected_line_i = 1
+        content.toggle_mark_item()
+
+        content.toggle_show_hidden()
+
+        self.assertEqual([], content.marked_item_indices)
+
+    @mock.patch('content.ConfigManager')
+    @mock.patch('content.terminal')
+    def test_not_hidden_marked_line_is_marked_after_showing_hidden_files_and_its_index_changed(self, mock_terminal, mock_config_manager_class):
+        mock_terminal.provide_initial_cwd.return_value = cwd
+        mock_terminal.get_ls.side_effect = mock_return_values
+        self.set_show_hidden(mock_config_manager_class, False)
+
+        content = Content()
+        content.main_pane_selected_line_i = 1
+        content.toggle_mark_item()
+
+        content.toggle_show_hidden()
+
+        self.assertEqual([2], content.marked_item_indices)
+
+    def set_show_hidden(self, mock_config_manager_class, show_hidden):
+        mock_config_manager_instance = mock_config_manager_class.return_value
+        mock_config_manager_instance.get_show_hidden.return_value = show_hidden
 
 
 if __name__ == '__main__':

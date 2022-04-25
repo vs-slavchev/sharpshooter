@@ -2,6 +2,8 @@
     A file system item that is a folder or a file with its properties.
 """
 
+import utility
+
 
 class FsItem:
 
@@ -15,7 +17,10 @@ class FsItem:
         return False
 
     def is_folder(self):
-        return self.text.endswith("/")
+        return utility.is_folder(self.text)
+
+    def is_hidden(self):
+        return utility.is_hidden(self.text)
 
     # cleans the slash in the end, which folders have
     def get_clean_name(self):
