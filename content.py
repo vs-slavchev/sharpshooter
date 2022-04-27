@@ -220,11 +220,11 @@ class Content:
         terminal.make_new_folder(self.to_path(new_folder_name))
         self.unmark_any_marked_items()
 
-    def rename(self, old_name, new_name):
+    def rename(self, new_name):
         logging.info("action: rename")
         if self.no_main_lines_exist():
             return
-        old_path = self.to_path(old_name)
+        old_path = self.to_path(self.currently_selected_item().text)
         new_path = self.to_path(new_name)
         terminal.move(old_path, new_path)
 

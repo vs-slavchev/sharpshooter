@@ -73,15 +73,13 @@ class Controller:
             self.content.toggle_mark_item()
 
     def make_new_folder(self):
-        y_position = self.pane_manager.main_window\
-                         .calculate_max_line_to_render(self.content.get_num_main_lines() - 1) + 1
-        new_folder_name = self.pane_manager.render_input_textbox(y_position)
+        new_folder_name = self.pane_manager.render_create_folder_input_textbox(self.content.get_num_main_lines())
         self.content.make_new_folder(new_folder_name)
 
-    # todo fix bug: use index in the rendered view and not in the items list
     def rename_selected(self):
         if self.content.no_main_lines_exist():
             return
-        y_to_render_at = self.content.get_main_selected_line_i() - self.pane_manager.main_window.lines_render_offset
-        new_name = self.pane_manager.render_input_textbox(y_to_render_at, self.content.currently_selected_item())
-        self.content.rename(self.content.currently_selected_item().text, new_name)
+        new_name = self.pane_manager.render_rename_input_textbox(
+            self.content.get_main_selected_line_i(),
+            self.content.currently_selected_item())
+        self.content.rename(new_name)

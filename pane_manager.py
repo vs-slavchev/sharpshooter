@@ -62,3 +62,13 @@ class PaneManager:
 
         message = box.gather()
         return str(message.strip("',/\n "))
+
+    def render_create_folder_input_textbox(self, num_main_lines):
+        y_position = self.main_window.calculate_max_line_to_render(num_main_lines - 1) + 1
+        new_folder_name = self.render_input_textbox(y_position)
+        return new_folder_name
+
+    def render_rename_input_textbox(self, main_selected_line_i, currently_selected_item):
+        y_to_render_at = main_selected_line_i - self.main_window.lines_render_offset
+        new_name = self.render_input_textbox(y_to_render_at, currently_selected_item)
+        return new_name
