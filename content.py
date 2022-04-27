@@ -218,6 +218,9 @@ class Content:
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
         terminal.make_new_folder(self.to_path(new_folder_name))
+        self.recalculate_content()
+        new_folder_index = self.main_lines.index(FsItem(new_folder_name + "/"))
+        self.main_pane_selected_line_i = new_folder_index
         self.unmark_any_marked_items()
 
     def rename(self, new_name):
