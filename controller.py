@@ -82,6 +82,6 @@ class Controller:
     def rename_selected(self):
         if self.content.no_main_lines_exist():
             return
-        new_name = self.pane_manager.render_input_textbox(
-            self.content.get_main_selected_line_i(), self.content.currently_selected_item())
+        y_to_render_at = self.content.get_main_selected_line_i() - self.pane_manager.main_window.lines_render_offset
+        new_name = self.pane_manager.render_input_textbox(y_to_render_at, self.content.currently_selected_item())
         self.content.rename(self.content.currently_selected_item().text, new_name)
