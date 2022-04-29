@@ -44,12 +44,7 @@ def open_new_terminal(directory_to_open_in):
         ["x-terminal-emulator"],
         ["urxvt"]
     ]
-    for command_array in terminal_commands:
-        try:
-            subprocess.call(command_array)
-            break  # stop trying others on success
-        except OSError:
-            logging.warning("terminal not found: {}".format(command_array))
+    execute_one_of_multiple_terminal_calls(terminal_commands)
 
 
 def open_file(full_path):
@@ -69,11 +64,15 @@ def open_file(full_path):
             logging.warning("could not execute open file command: {}".format(command_array))
 
 
-# todo if a file/dir with the same name already exists in trash then it won't succeed
 def delete(path_to_delete):
-    home_of_logged_in_user = str(Path.home())
-    terminal_command = ["mv", path_to_delete, "{}/.local/share/Trash/files/".format(home_of_logged_in_user)]
+    terminal_command = ["gio", "trash", path_to_delete]
     execute_terminal_call(terminal_command)
+
+    delete_commands = [
+        ["gio", "trash", path_to_delete],
+        ["mv", path_to_delete, "trash://"]
+    ]
+    execute_one_of_multiple_terminal_calls(delete_commands)
 
 
 def permanent_delete(path_to_delete):
@@ -108,3 +107,12 @@ def execute_terminal_call(terminal_command):
         subprocess.call(terminal_command)
     except OSError:
         logging.error("could not execute terminal call: {}".format(terminal_command))
+
+
+def execute_one_of_multiple_terminal_calls(commands):
+    for command_array in commands:
+        try:
+            subprocess.call(command_array)
+            break  # stop trying others on success
+        except OSError:
+            logging.warning("terminal call not supported: {}".format(command_array))
