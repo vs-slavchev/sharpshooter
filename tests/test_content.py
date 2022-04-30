@@ -15,6 +15,20 @@ def mock_return_values(arg):
 
 class TestContent(unittest.TestCase):
 
+    def test_path_with_slash_has_last_element_word(self):
+        path_with_slash = "/aaa/bbb/"
+        content = Content()
+        last_element = content.to_path_elements(path_with_slash)[-1]
+
+        self.assertEqual("bbb", last_element)
+
+    def test_path_without_slash_has_last_element_word(self):
+        path_with_slash = "/aaa/bbb"
+        content = Content()
+        last_element = content.to_path_elements(path_with_slash)[-1]
+
+        self.assertEqual("bbb", last_element)
+
     @mock.patch('content.terminal')
     def test_second_line_is_selected_when_selecting_below_the_first_line(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
@@ -111,7 +125,7 @@ class TestContent(unittest.TestCase):
         content = Content()
         content.main_pane_selected_line_i = 1
 
-        content.delete_selected()
+        content.delete()
         content.recalculate_content()
 
         self.assertEqual(content.main_pane_selected_line_i, 1)

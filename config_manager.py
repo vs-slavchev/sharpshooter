@@ -23,7 +23,8 @@ default_config = """[keys]
                     paste = p
                     cut = d
                     zip_unzip = z
-                    mark_item = m
+                    toggle_mark_item = m
+                    undo = u
                     
                     [settings]
                     show_hidden = False"""

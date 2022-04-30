@@ -21,7 +21,7 @@ class TestEmptyFolder(unittest.TestCase):
         mock_terminal.get_ls.side_effect = mock_return_values
         content = Content()
 
-        content.delete_selected()
+        content.delete()
 
         mock_terminal.delete.assert_not_called()
 

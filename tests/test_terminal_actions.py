@@ -57,7 +57,7 @@ class TestTerminalActions(unittest.TestCase):
         content = Content()
         content.main_pane_selected_line_i = 0
 
-        content.delete_selected()
+        content.delete()
 
         mock_terminal.delete.assert_called_with(cwd + 'aaaa')
 

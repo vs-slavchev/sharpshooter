@@ -64,15 +64,19 @@ def open_file(full_path):
             logging.warning("could not execute open file command: {}".format(command_array))
 
 
-def delete(path_to_delete):
-    terminal_command = ["gio", "trash", path_to_delete]
-    execute_terminal_call(terminal_command)
+def get_users_trash_path():
+    home_of_logged_in_user = str(Path.home())
+    return home_of_logged_in_user + "/.local/share/Trash/files/"
 
+
+def delete(path_to_delete):
     delete_commands = [
         ["gio", "trash", path_to_delete],
-        ["mv", path_to_delete, "trash://"]
+        ["mv", path_to_delete, "trash://"],
+        ["mv", path_to_delete, get_users_trash_path()]
     ]
     execute_one_of_multiple_terminal_calls(delete_commands)
+    return path_to_delete
 
 
 def permanent_delete(path_to_delete):

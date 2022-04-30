@@ -56,7 +56,7 @@ class Controller:
         elif input_key == self.input_keys.toggle_show_hidden:
             self.content.toggle_show_hidden()
         elif input_key == self.input_keys.delete:
-            self.content.delete_selected()
+            self.content.delete()
         elif input_key == self.input_keys.make_new_folder:
             self.make_new_folder()
         elif input_key == self.input_keys.rename:
@@ -71,6 +71,8 @@ class Controller:
             self.content.zip_unzip()
         elif input_key == self.input_keys.toggle_mark_item:
             self.content.toggle_mark_item()
+        elif input_key == self.input_keys.undo:
+            self.content.undo()
 
     def make_new_folder(self):
         new_folder_name = self.pane_manager.render_create_folder_input_textbox(self.content.get_num_main_lines())

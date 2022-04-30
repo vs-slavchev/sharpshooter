@@ -2,9 +2,6 @@
     Reads the input keys from a config.
 """
 
-import configparser
-from pathlib import Path
-
 from config_manager import ConfigManager
 
 
@@ -28,4 +25,5 @@ class InputKeys:
         self.cut = config_manager.get_key_for('cut')
         self.zip_unzip = config_manager.get_key_for('zip_unzip')
         self.toggle_mark_item = config_manager.get_key_for('toggle_mark_item')
+        self.undo = config_manager.get_key_for('undo')
 

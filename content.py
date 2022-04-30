@@ -10,6 +10,7 @@ import threading
 from config_manager import ConfigManager
 from fs_item import FsItem
 import utility
+from queue import LifoQueue
 
 
 class Content:
@@ -27,6 +28,7 @@ class Content:
         self.copy_removes_source = False
 
         self.marked_item_indices = []
+        self.deleted_files_queue = LifoQueue(maxsize=128)
 
         self.config_manager = ConfigManager()
         self.show_hidden = self.config_manager.get_show_hidden()
@@ -77,9 +79,6 @@ class Content:
         self.main_pane_selected_line_i = self.main_lines.index(closest_visible_fs_item)
         self.repopulate_marked_item_indices(marked_fs_items)
 
-    def get_marked_items(self):
-        return list(map(lambda mii: self.main_lines[mii], self.marked_item_indices))
-
     # repopulate the marked item indices list by mapping marked fs items back to an index if they are still visible
     def repopulate_marked_item_indices(self, marked_fs_items):
         self.unmark_any_marked_items()
@@ -123,7 +122,7 @@ class Content:
             self.parent_pane_selected_line_i = list(map(lambda pl: pl.text, self.parent_lines)).index(parent_folder)
 
     def get_parent_folder(self):
-        path_elements = self.to_path_elements()
+        path_elements = self.to_path_elements(self.cwd)
         if len(path_elements) > 0:
             return path_elements[-1] + "/"
         else:
@@ -131,7 +130,7 @@ class Content:
 
     def open_parent(self):
         logging.info("action: open_parent")
-        there_is_some_parent = len(self.to_path_elements()) > 0
+        there_is_some_parent = len(self.to_path_elements(self.cwd)) > 0
         if there_is_some_parent:
             self.set_cwd_to_parent_directory()
             self.unmark_any_marked_items()
@@ -177,12 +176,12 @@ class Content:
             return "/"
 
     def get_higher_path_elements(self):
-        only_path_elements = self.to_path_elements()
+        only_path_elements = self.to_path_elements(self.cwd)
         higher_path_elements = only_path_elements[:-1]  # drop last path element
         return higher_path_elements
 
-    def to_path_elements(self):
-        higher_folders = self.cwd.split("/")
+    def to_path_elements(self, full_path):
+        higher_folders = full_path.split("/")
         only_path_elements = list(filter(lambda path_elem: len(path_elem) > 0, higher_folders))
         return only_path_elements
 
@@ -202,18 +201,29 @@ class Content:
         else:
             terminal.open_file(self.child_path)
 
-    def delete_selected(self):
-        logging.info("action: delete selected")
+    def undo(self):
+        logging.info("action: undo")
+        if not self.deleted_files_queue.empty():
+            file_path = self.deleted_files_queue.get()
+            file_name = self.to_path_elements(file_path)[-1]
+            path_in_trash = terminal.get_users_trash_path() + file_name
+            terminal.move(path_in_trash, file_path)
+
+    def delete(self):
+        logging.info("action: delete")
         if self.no_main_lines_exist():
             return
         if self.exist_marked_items():
             paths_to_delete = self.get_paths_of_marked_items()
             for path in paths_to_delete:
-                terminal.delete(path)
+                self.save_deletion_info(terminal.delete(path))
         else:
-            terminal.delete(self.child_path)
+            self.save_deletion_info(terminal.delete(self.child_path))
         self.unmark_any_marked_items()
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
+
+    def save_deletion_info(self, deleted_path):
+        self.deleted_files_queue.put(deleted_path)
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
@@ -342,14 +352,17 @@ class Content:
     def get_main_selected_line_i(self):
         return self.main_pane_selected_line_i
 
+    def get_marked_items(self):
+        return list(map(lambda mii: self.main_lines[mii], self.marked_item_indices))
+
     def get_paths_of_marked_items(self):
         return list(map(lambda mii: self.to_path(self.main_lines[mii].text), self.marked_item_indices))
 
-    def no_main_lines_exist(self):
-        return len(self.main_lines) <= 0
-
     def unmark_any_marked_items(self):
         self.marked_item_indices = []
+
+    def no_main_lines_exist(self):
+        return len(self.main_lines) <= 0
 
     def to_path(self, fs_item_name):
         return self.cwd + fs_item_name
