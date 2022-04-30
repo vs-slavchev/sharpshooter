@@ -62,24 +62,13 @@ class TestTerminalActions(unittest.TestCase):
         mock_terminal.delete.assert_called_with(cwd + 'aaaa')
 
     @mock.patch('content.terminal')
-    def test_new_folder_calls_make_new_folder_with_name(self, mock_terminal):
-        mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
-        content = Content()
-        content.main_pane_selected_line_i = 0
-
-        folder_name = 'new_folder_name'
-        content.make_new_folder(folder_name)
-
-        mock_terminal.make_new_folder.assert_called_with(cwd + folder_name)
-
-    @mock.patch('content.terminal')
     def test_rename_is_called_with_correct_absolute_paths(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.get_ls.side_effect = mock_return_values
         content = Content()
+        content.main_lines = [FsItem('aaaa')]
 
-        content.rename('aaaa', 'bbbb')
+        content.rename('bbbb')
 
         mock_terminal.move.aassert_called_with(cwd + 'aaaa', cwd + 'bbbb')
 

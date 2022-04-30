@@ -51,9 +51,15 @@ class TestEmptyFolder(unittest.TestCase):
         mock_terminal.get_ls.side_effect = mock_return_values
         content = Content()
 
-        content.rename('a', 'b')
+        content.rename('b')
 
         mock_terminal.move.assert_not_called()
+
+    def test_fs_items_with_same_text_are_equal(self):
+        first = FsItem('a')
+        second = FsItem('a')
+
+        self.assertEqual(first, second)
 
 
 if __name__ == '__main__':
