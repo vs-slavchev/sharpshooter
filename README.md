@@ -41,9 +41,15 @@ Simple to configure and hack at.
 
 [shutil](https://docs.python.org/3/library/shutil.html)
 
+[logging](https://docs.python.org/3/library/logging.html)
 # Diagrams
 
 ![block_diagram](./docs/block_diagram.svg)
+
+# Install and remove
+`snap install --beta sharpshooter --devmode`
+
+`snap remove sharpshooter`
 
 # Releasing
 1. install ```sudo apt-get install build-essential devscripts debhelper debmake dh-python python3-all```
