@@ -5,7 +5,7 @@
 import logging
 import curses
 
-from cursed_window import CursedWindow
+from cursed_files_pane import CursedFilesPane
 from curses.textpad import Textbox, rectangle
 
 from fs_item import FsItem
@@ -20,9 +20,10 @@ class PaneManager:
         window_footer_height = 1
         pane_height = screen_height - window_y - window_footer_height
 
-        self.left_window = CursedWindow(1, window_y, self.pane_width - 1, pane_height)
-        self.main_window = CursedWindow(self.pane_width, window_y, self.pane_width, pane_height)
-        self.right_window = CursedWindow(self.pane_width * 2, window_y, self.pane_width, pane_height)
+        self.left_window = CursedFilesPane(1, window_y, self.pane_width - 1, pane_height)
+        self.main_window = CursedFilesPane(self.pane_width, window_y, self.pane_width, pane_height)
+        self.right_window = CursedFilesPane(self.pane_width * 2, window_y, self.pane_width, pane_height)
+        self.bottom_window = curses.newwin(1, screen_width - 1, screen_height - 1, 1)
 
         self.top_line_width = screen_width - 1
         self.top_line = curses.newwin(1, self.top_line_width, 0, 1)
@@ -34,20 +35,25 @@ class PaneManager:
         self.main_window.render(main_lines, main_selected)
         self.right_window.render_without_selected(right_lines)
 
-    def render_top_line(self, cwd_path):
+    def render_top_bottom_line(self, cwd_path, bottom_text):
         self.top_line.addnstr(0, 0, cwd_path, self.top_line_width, curses.A_BOLD)
+        self.bottom_window.addnstr(0, 0, bottom_text, len(bottom_text), curses.A_NORMAL)
 
     def refresh_panes(self):
         self.left_window.refresh()
         self.main_window.refresh()
         self.right_window.refresh()
         self.top_line.refresh()
+        self.bottom_window.noutrefresh()
+
+        curses.doupdate()
 
     def clear_panes(self):
         self.left_window.clear()
         self.main_window.clear()
         self.right_window.clear()
         self.top_line.clear()
+        self.bottom_window.clear()
 
     def render_input_textbox(self, y_position, placeholder=FsItem("")):
         edit_window = curses.newwin(1, self.pane_width - 2, y_position + 1, self.pane_width + 1)

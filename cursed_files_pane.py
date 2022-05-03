@@ -6,7 +6,7 @@ import curses
 import logging
 
 
-class CursedWindow:
+class CursedFilesPane:
 
     def __init__(self, x, y, width, height):
         """
