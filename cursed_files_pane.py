@@ -35,7 +35,7 @@ class CursedFilesPane:
 
         number_lines = len(self.fs_content)
         logging.debug("rendering {} lines".format(number_lines))
-        for screen_line_i in range(self.calculate_max_line_to_render(number_lines) + 1):
+        for screen_line_i in range(self.calculate_max_line_to_render(number_lines)):
             if screen_line_i != content_line_selected_i - self.lines_render_offset:
                 self.render_line(screen_line_i)
 
@@ -50,7 +50,7 @@ class CursedFilesPane:
             self.render_line(line_i)
 
     def calculate_max_line_to_render(self, number_lines):
-        max_line_to_render = min(number_lines, self.height - 2)
+        max_line_to_render = min(number_lines, max(self.height - 1, 0))
         return max_line_to_render
 
     def render_line(self, screen_line_i):

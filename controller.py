@@ -4,6 +4,7 @@
 
 import curses
 import logging
+import traceback
 
 from input_keys import InputKeys
 from pane_manager import PaneManager
@@ -21,20 +22,26 @@ class Controller:
         self.input_keys = InputKeys()
         self.pane_manager = PaneManager(standard_screen)
 
-    def update(self):
+    def run(self):
         while self.is_working:
-            self.standard_screen.clear()
-            self.pane_manager.clear_panes()
+            try:
+                self.update()
+            except Exception as e:
+                logging.error(e)
 
-            self.content.recalculate_content()
+    def update(self):
+        self.standard_screen.clear()
+        self.pane_manager.clear_panes()
 
-            self.pane_manager.render_top_bottom_line(self.content.cwd, self.content.last_action_description)
-            self.pane_manager.render_panes(self.content.get_renderable_content())
+        self.content.recalculate_content()
 
-            self.standard_screen.refresh()
-            self.pane_manager.refresh_panes()
+        self.pane_manager.render_top_bottom_line(self.content.cwd, self.content.last_action_description)
+        self.pane_manager.render_panes(self.content.get_renderable_content())
 
-            self.process_input()
+        self.standard_screen.refresh()
+        self.pane_manager.refresh_panes()
+
+        self.process_input()
 
     def process_input(self):
         input_key = self.standard_screen.getkey()

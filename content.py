@@ -60,7 +60,7 @@ class Content:
 
         self.main_lines = self.query_pane_content(self.cwd)
 
-        self.main_pane_selected_line_i = self.main_lines.index(selected_item)
+        self.select_line_with(selected_item)
         self.repopulate_marked_item_indices(marked_fs_items)
 
     # hiding a hidden item; only happens when hiding because only then can a hidden item be selected
@@ -78,7 +78,7 @@ class Content:
 
         self.main_lines = self.query_pane_content(self.cwd)
 
-        self.main_pane_selected_line_i = self.main_lines.index(closest_visible_fs_item)
+        self.select_line_with(closest_visible_fs_item)
         self.repopulate_marked_item_indices(marked_fs_items)
 
     # repopulate the marked item indices list by mapping marked fs items back to an index if they are still visible
@@ -286,11 +286,10 @@ class Content:
 
         self.recalculate_content()
 
-        # select copied file
+        # select newly copied file
         if len(self.paths_to_copy) == 1:
-            self.main_lines = self.query_pane_content(self.cwd)
             newly_pasted_item = FsItem(utility.extract_item_name_from_path(self.paths_to_copy[0]))
-            self.main_pane_selected_line_i = self.main_lines.index(newly_pasted_item)
+            self.select_line_with(newly_pasted_item)
             self.last_action_description = "Pasted [{}].".format(newly_pasted_item.text)
         else:
             self.main_pane_selected_line_i = 0
@@ -355,6 +354,9 @@ class Content:
         terminal.open_new_terminal(self.cwd)
 
     def toggle_mark_item(self):
+        logging.info("action: mark item")
+        if self.no_main_lines_exist():
+            return
         is_already_marked = self.main_pane_selected_line_i in self.marked_item_indices
         if is_already_marked:
             self.marked_item_indices.remove(self.main_pane_selected_line_i)
@@ -369,6 +371,9 @@ class Content:
 
     def get_main_selected_line_i(self):
         return self.main_pane_selected_line_i
+
+    def select_line_with(self, line_text):
+        self.main_pane_selected_line_i = self.main_lines.index(line_text)
 
     def get_marked_items(self):
         return list(map(lambda mii: self.main_lines[mii], self.marked_item_indices))

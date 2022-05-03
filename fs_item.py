@@ -25,3 +25,6 @@ class FsItem:
     # cleans the slash in the end, which folders have
     def get_clean_name(self):
         return self.text[:-1] if self.is_folder() else self.text
+
+    def __str__(self) -> str:
+        return "FsItem(text={}, is_marked={})".format(self.text, self.is_marked)

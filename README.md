@@ -10,19 +10,20 @@ Simple to configure and hack at.
 
 *What this is not: complex, with many features, with thousands of commits, hard to get into, promising support for special encodings or alphabets, supporting extra features like bulk rename.*
 
-# Features
-- [x] configurable hotkeys
+# Single key actions
 - [x] open terminal at current folder
-- [x] open files with the appropriate application
-- [x] toggle show/hide hidden files
+- [x] open file
+- [x] toggle hidden files visibility
 - [x] make new folder
 - [x] rename
 - [x] delete
-- [x] copy
-- [x] paste
-- [x] cut
-- [x] easy extract/archive
-- [x] select multiple items
+- [x] undo delete
+- [x] copy/cut
+- [x] archive/extract
+
+# Features
+- [x] select multiple files
+- [x] configurable hotkeys
 
 ### How to use
 
