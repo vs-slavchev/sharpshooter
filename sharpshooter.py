@@ -4,7 +4,6 @@
 
 import curses
 import logging
-import traceback
 from pathlib import Path
 
 import controller
@@ -16,8 +15,8 @@ def incurses(standard_screen):
     app_controller = controller.Controller(standard_screen)
     try:
         app_controller.run()
-    except Exception:
-        logging.error(traceback.format_exc())
+    except Exception as e:
+        logging.error(e)
         raise
 
 

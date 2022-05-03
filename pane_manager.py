@@ -6,7 +6,7 @@ import logging
 import curses
 
 from cursed_files_pane import CursedFilesPane
-from curses.textpad import Textbox, rectangle
+from curses.textpad import Textbox
 
 from fs_item import FsItem
 

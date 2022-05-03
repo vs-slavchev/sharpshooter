@@ -4,7 +4,6 @@
 
 import curses
 import logging
-import traceback
 
 from input_keys import InputKeys
 from pane_manager import PaneManager
