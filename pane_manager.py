@@ -5,6 +5,7 @@
 import logging
 import curses
 
+import utility
 from cursed_files_pane import CursedFilesPane
 from curses.textpad import Textbox
 from single_line_window import SingleLineWindow
@@ -61,7 +62,9 @@ class PaneManager:
         self.main_window.get_window().addnstr(y_position, 0, ">", 1, text_attribute)
         self.main_window.refresh()
 
-        edit_window.addstr(0, 0, placeholder.get_clean_name().encode('utf-8'))
+        original_name_text = utility.fit_text_to_line_length(self.pane_width - 2,
+                                                             placeholder.get_clean_name())
+        edit_window.addstr(0, 0, original_name_text)
         box = Textbox(edit_window)
 
         box.edit()

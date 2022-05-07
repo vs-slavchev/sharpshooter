@@ -4,6 +4,7 @@
 
 import curses
 import logging
+import utility
 
 
 class CursedFilesPane:
@@ -86,12 +87,10 @@ class CursedFilesPane:
         return text_attribute
 
     def add_string(self, y, text, text_attribute):
-        unused_chars_on_line = 2
-        indicator_long_line = "..."
-        text = " " + text
-        if len(text) > self.width - unused_chars_on_line:
-            last_char_index = self.width - (unused_chars_on_line + len(indicator_long_line))
-            text = text[:last_char_index] + indicator_long_line
+        text = " " + text  # sometimes this space is used for a symbol to indicate renaming
+        unused_chars_on_line = 1
+        available_width = self.width - unused_chars_on_line
+        text = utility.fit_text_to_line_length(available_width, text)
 
         try:
             self.window.addnstr(y, 0, text, self.width, text_attribute)
