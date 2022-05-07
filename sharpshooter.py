@@ -16,7 +16,7 @@ def incurses(standard_screen):
     try:
         app_controller.run()
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
         raise
 
 
