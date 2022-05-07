@@ -12,14 +12,14 @@ Simple to configure and hack at.
 
 # Single key actions
 - [x] open terminal at current folder
-- [x] open file
-- [x] toggle hidden files visibility
+- [x] archive/extract
 - [x] make new folder
+- [x] toggle hidden files visibility
 - [x] rename
 - [x] delete
 - [x] undo delete
 - [x] copy/cut
-- [x] archive/extract
+- [x] open file
 
 # Features
 - [x] select multiple files
