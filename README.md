@@ -21,11 +21,16 @@ Simple to configure and hack at.
 - [x] copy/cut
 - [x] open file
 
-# Features
+## Features
 - [x] select multiple files
 - [x] configurable hotkeys
 
-### How to use
+# Install and remove
+`snap install --beta sharpshooter --devmode`
+
+`snap remove sharpshooter`
+
+### Change hotkeys
 
 - edit the `.sharpshooter_config` in your home dir with your preferred hotkeys
 
@@ -45,11 +50,6 @@ Simple to configure and hack at.
 # Diagrams
 
 ![block_diagram](./docs/block_diagram.svg)
-
-# Install and remove
-`snap install --beta sharpshooter --devmode`
-
-`snap remove sharpshooter`
 
 # Releasing
 1. install ```sudo apt-get install build-essential devscripts debhelper debmake dh-python python3-all```
