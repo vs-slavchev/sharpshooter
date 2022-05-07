@@ -236,8 +236,7 @@ class Content:
         logging.info("action: make new folder")
         terminal.make_new_folder(self.to_path(new_folder_name))
         self.recalculate_content()
-        new_folder_index = self.main_lines.index(FsItem(new_folder_name + "/"))
-        self.main_pane_selected_line_i = new_folder_index
+        self.select_line_with(FsItem(new_folder_name + "/"))
         self.unmark_any_marked_items()
         self.describe_last_action("Made new folder [{}].", new_folder_name)
 
@@ -372,8 +371,13 @@ class Content:
     def get_main_selected_line_i(self):
         return self.main_pane_selected_line_i
 
-    def select_line_with(self, line_text):
-        self.main_pane_selected_line_i = self.main_lines.index(line_text)
+    def select_line_with(self, fs_item):
+        if fs_item.is_hidden() and not self.show_hidden:
+            return
+        try:
+            self.main_pane_selected_line_i = self.main_lines.index(fs_item)
+        except ValueError:
+            logging.debug("Error selecting line {}", fs_item)
 
     def get_marked_items(self):
         return list(map(lambda mii: self.main_lines[mii], self.marked_item_indices))

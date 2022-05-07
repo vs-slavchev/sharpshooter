@@ -1,6 +1,6 @@
 name: sharpshooter
 title: sharpshooter
-version: '1.2.1'
+version: '1.2.2'
 summary: Minimal file manager
 description: minimal terminal application that in a single key press lets you navigate and copy/cut/delete/(un)zip your files and open the terminal
 type: app
