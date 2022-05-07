@@ -10,7 +10,7 @@ setup(
 	author_email='vs_slavchev@abv.bg',
 	license='GNU',
 	url='https://github.com/vs-slavchev/sharpshooter',
-    py_modules=['sharpshooter', 'controller', 'content', 'config_manager', 'cursed_files_pane', 'fs_item', 'input_keys', 'pane_manager', 'terminal', 'utility'],
+    py_modules=['sharpshooter', 'controller', 'content', 'config_manager', 'cursed_files_pane', 'fs_item', 'input_keys', 'pane_manager', 'terminal', 'utility', 'single_line_window'],
     install_requires=[],
     entry_points='''
         [console_scripts]

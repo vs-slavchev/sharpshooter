@@ -6,11 +6,11 @@ import logging
 import terminal
 import shutil
 import threading
+from queue import LifoQueue
 
 from config_manager import ConfigManager
 from fs_item import FsItem
 import utility
-from queue import LifoQueue
 
 
 class Content:
@@ -136,7 +136,7 @@ class Content:
         if there_is_some_parent:
             self.set_cwd_to_parent_directory()
             self.unmark_any_marked_items()
-            self.last_action_description = ""
+            self.clear_last_action_description()
 
     def currently_selected_item(self):
         if self.main_pane_selected_line_i >= len(self.main_lines):
@@ -170,7 +170,7 @@ class Content:
             self.main_pane_selected_line_i = 0
             self.cwd = self.child_path
             self.unmark_any_marked_items()
-            self.last_action_description = ""
+            self.clear_last_action_description()
 
     def parent_directory(self):
         higher_path_elements = self.get_higher_path_elements()
@@ -212,7 +212,7 @@ class Content:
             file_name = self.file_name_from_path(file_path)
             path_in_trash = terminal.get_users_trash_path() + file_name
             terminal.move(path_in_trash, file_path)
-            self.last_action_description = "Undone delete of [{}].".format(file_name)
+            self.describe_last_action("Undone delete of [{}].", file_name)
 
     def delete(self):
         logging.info("action: delete")
@@ -222,10 +222,10 @@ class Content:
             paths_to_delete = self.get_paths_of_marked_items()
             for path in paths_to_delete:
                 self.save_deletion_info(terminal.delete(path))
-            self.last_action_description = "Deleted {} files.".format(len(paths_to_delete))
+            self.describe_last_action("Deleted {} files.", len(paths_to_delete))
         else:
             self.save_deletion_info(terminal.delete(self.child_path))
-            self.last_action_description = "Deleted [{}].".format(self.file_name_from_path(self.child_path))
+            self.describe_last_action("Deleted [{}].", self.file_name_from_path(self.child_path))
         self.unmark_any_marked_items()
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
@@ -239,7 +239,7 @@ class Content:
         new_folder_index = self.main_lines.index(FsItem(new_folder_name + "/"))
         self.main_pane_selected_line_i = new_folder_index
         self.unmark_any_marked_items()
-        self.last_action_description = "Made new folder [{}].".format(new_folder_name)
+        self.describe_last_action("Made new folder [{}].", new_folder_name)
 
     def rename(self, new_name):
         logging.info("action: rename")
@@ -248,7 +248,7 @@ class Content:
         old_path = self.to_path(self.currently_selected_item().text)
         new_path = self.to_path(new_name)
         terminal.move(old_path, new_path)
-        self.last_action_description = "Renamed [{}] to [{}].".format(self.currently_selected_item().text, new_name)
+        self.describe_last_action("Renamed [{}] to [{}].", self.file_name_from_path(old_path), new_name)
 
     def copy(self):
         logging.info("action: copy")
@@ -269,10 +269,10 @@ class Content:
     def prepare_paths_to_copy(self):
         if self.exist_marked_items():
             self.paths_to_copy = self.get_paths_of_marked_items()
-            self.last_action_description = "Clipboard: {} files.".format(len(self.paths_to_copy))
+            self.describe_last_action("Clipboard: {} files.", len(self.paths_to_copy))
         else:
             self.paths_to_copy = [self.child_path]
-            self.last_action_description = "Clipboard: [{}].".format(self.file_name_from_path(self.child_path))
+            self.describe_last_action("Clipboard: [{}].", self.file_name_from_path(self.child_path))
 
     def paste(self):
         logging.info("action: paste")
@@ -290,10 +290,10 @@ class Content:
         if len(self.paths_to_copy) == 1:
             newly_pasted_item = FsItem(utility.extract_item_name_from_path(self.paths_to_copy[0]))
             self.select_line_with(newly_pasted_item)
-            self.last_action_description = "Pasted [{}].".format(newly_pasted_item.text)
+            self.describe_last_action("Pasted [{}].", newly_pasted_item.text)
         else:
             self.main_pane_selected_line_i = 0
-            self.last_action_description = "Pasted {} files.".format(len(self.paths_to_copy))
+            self.describe_last_action("Pasted {} files.", len(self.paths_to_copy))
 
         self.paths_to_copy = []
         self.copy_removes_source = False
@@ -318,7 +318,7 @@ class Content:
         path_to_process = self.to_path(self.currently_selected_item().text)
         zip_file_name = self.currently_selected_item().get_clean_name()
         self.perform_zip(path_to_process, zip_file_name)
-        self.last_action_description = "Zip [{}].".format(self.currently_selected_item().text)
+        self.describe_last_action("Zip [{}].", self.currently_selected_item().text)
 
     def zip_marked_items(self):
         logging.info("action: zip marked")
@@ -332,7 +332,7 @@ class Content:
         self.perform_zip(path_to_process, zip_file_name)
         terminal.permanent_delete(temp_folder_path)
 
-        self.last_action_description = "Zip {} files.".format(len(self.marked_item_indices))
+        self.describe_last_action("Zip {} files.", len(self.marked_item_indices))
         self.unmark_any_marked_items()
 
     def perform_zip(self, path_to_process, zip_file_name):
@@ -348,7 +348,7 @@ class Content:
         thread = threading.Thread(target=shutil.unpack_archive,
                                   args=(path_to_process, folder_to_unpack_in, 'zip'))
         thread.start()
-        self.last_action_description = "Unzip [{}].".format(self.currently_selected_item().text)
+        self.describe_last_action("Unzip [{}].", self.currently_selected_item().text)
 
     def open_new_terminal(self):
         terminal.open_new_terminal(self.cwd)
@@ -392,3 +392,9 @@ class Content:
 
     def file_name_from_path(self, full_path):
         return self.to_path_elements(full_path)[-1]
+
+    def describe_last_action(self, pattern, value, second_value=""):
+        self.last_action_description = pattern.format(value, second_value)
+
+    def clear_last_action_description(self):
+        self.last_action_description = ""

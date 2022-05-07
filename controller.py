@@ -26,7 +26,10 @@ class Controller:
             try:
                 self.update()
             except Exception as e:
+                # todo log traceback too
                 logging.error(e)
+                # todo raise only when in debug
+                raise
 
     def update(self):
         self.standard_screen.clear()
