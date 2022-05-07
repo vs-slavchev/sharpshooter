@@ -1,6 +1,8 @@
+"""
+    Renders a window that takes up a single line on screen.
+"""
 
 import curses
-import logging
 import utility
 
 
