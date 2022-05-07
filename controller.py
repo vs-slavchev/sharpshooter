@@ -37,8 +37,10 @@ class Controller:
 
         self.content.recalculate_content()
 
-        self.pane_manager.render_top_bottom_line(self.content.cwd, self.content.last_action_description)
+        self.pane_manager.render_path_indicator(self.content.cwd)
         self.pane_manager.render_panes(self.content.get_renderable_content())
+        self.pane_manager.render_last_action_description(self.content.last_action_description)
+        self.pane_manager.render_hotkey_guide(self.input_keys.hotkey_guide)
 
         self.standard_screen.refresh()
         self.pane_manager.refresh_panes()
@@ -62,11 +64,11 @@ class Controller:
             self.content.open_new_terminal()
         elif input_key == self.input_keys.open_file:
             self.content.open_selected()
-        elif input_key == self.input_keys.toggle_show_hidden:
+        elif input_key == self.input_keys.toggle_hidden:
             self.content.toggle_show_hidden()
         elif input_key == self.input_keys.delete:
             self.content.delete()
-        elif input_key == self.input_keys.make_new_folder:
+        elif input_key == self.input_keys.new_folder:
             self.make_new_folder()
         elif input_key == self.input_keys.rename:
             self.rename_selected()
@@ -78,7 +80,7 @@ class Controller:
             self.content.cut()
         elif input_key == self.input_keys.zip_unzip:
             self.content.zip_unzip()
-        elif input_key == self.input_keys.toggle_mark_item:
+        elif input_key == self.input_keys.mark_item:
             self.content.toggle_mark_item()
         elif input_key == self.input_keys.undo:
             self.content.undo()

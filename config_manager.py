@@ -15,15 +15,15 @@ default_config = """[keys]
                     quit = q
                     open_terminal = t
                     open_file = \\n
-                    toggle_show_hidden = h
+                    toggle_hidden = h
                     delete = x
-                    make_new_folder = f
+                    new_folder = f
                     rename = r
                     copy = c
                     paste = p
                     cut = d
                     zip_unzip = z
-                    toggle_mark_item = m
+                    mark_item = m
                     undo = u
                     
                     [settings]

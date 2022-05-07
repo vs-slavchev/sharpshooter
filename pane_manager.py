@@ -27,7 +27,8 @@ class PaneManager:
 
         line_width = screen_width - 1
         self.path_indicator = SingleLineWindow(1, 0, line_width, curses.A_BOLD)
-        self.last_action_description = SingleLineWindow(1, screen_height - 1, line_width, curses.A_NORMAL)
+        self.last_action_description = SingleLineWindow(1, screen_height - 2, line_width, curses.A_NORMAL)
+        self.hotkey_guide = SingleLineWindow(1, screen_height - 1, line_width, curses.A_NORMAL)
 
     def render_panes(self, renderable_content):
         left_lines, main_lines, right_lines, left_selected, main_selected = renderable_content
@@ -36,9 +37,14 @@ class PaneManager:
         self.main_window.render(main_lines, main_selected)
         self.right_window.render_without_selected(right_lines)
 
-    def render_top_bottom_line(self, cwd_path, last_action_description):
+    def render_path_indicator(self, cwd_path):
         self.path_indicator.render(cwd_path)
+
+    def render_last_action_description(self, last_action_description):
         self.last_action_description.render(last_action_description)
+
+    def render_hotkey_guide(self, hotkey_guide):
+        self.hotkey_guide.render(hotkey_guide)
 
     def refresh_panes(self):
         self.left_window.refresh()
@@ -46,6 +52,7 @@ class PaneManager:
         self.right_window.refresh()
         self.path_indicator.refresh()
         self.last_action_description.refresh()
+        self.hotkey_guide.refresh()
 
         curses.doupdate()
 
@@ -55,15 +62,16 @@ class PaneManager:
         self.right_window.clear()
         self.path_indicator.clear()
         self.last_action_description.clear()
+        self.hotkey_guide.clear()
 
     def render_input_textbox(self, y_position, placeholder=FsItem("")):
-        edit_window = curses.newwin(1, self.pane_width - 2, y_position + 1, self.pane_width + 1)
+        edit_box_width = self.pane_width - 2
+        edit_window = curses.newwin(1, edit_box_width, y_position + 1, self.pane_width + 1)
         text_attribute = self.main_window.calculate_attributes(placeholder)
         self.main_window.get_window().addnstr(y_position, 0, ">", 1, text_attribute)
         self.main_window.refresh()
 
-        original_name_text = utility.fit_text_to_line_length(self.pane_width - 2,
-                                                             placeholder.get_clean_name())
+        original_name_text = utility.fit_text_to_line_length(edit_box_width, placeholder.get_clean_name())
         edit_window.addstr(0, 0, original_name_text)
         box = Textbox(edit_window)
 
