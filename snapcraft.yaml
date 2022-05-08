@@ -1,6 +1,6 @@
 name: sharpshooter
 title: sharpshooter
-version: '1.2.6'
+version: '1.2.7'
 summary: Minimal file manager
 description: minimal terminal application that in a single key press lets you navigate and copy/cut/delete/(un)zip your files and open the terminal
 type: app
@@ -13,6 +13,9 @@ base: core20
 parts:
   sharpshooter:
     plugin: python
+    python-version: python3
+    python-packages:
+      - pathlib
     source: https://github.com/vs-slavchev/sharpshooter.git
     stage-packages:
       - python-six

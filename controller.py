@@ -51,6 +51,7 @@ class Controller:
                 self.update()
             except Exception as e:
                 logging.exception(e)
+                raise
 
     def update(self):
         self.standard_screen.clear()
