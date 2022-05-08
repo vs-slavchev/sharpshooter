@@ -11,7 +11,9 @@ import utility
 
 
 def provide_initial_cwd():
-    return str(Path.home()) + "/"
+    home_path = str(Path.home()) + "/"
+    logging.info("initial cwd: {}", home_path)
+    return home_path
 
 
 def get_ls(directory="."):

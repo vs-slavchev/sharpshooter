@@ -21,6 +21,30 @@ class Controller:
         self.input_keys = InputKeys()
         self.pane_manager = PaneManager(standard_screen)
 
+        self.keys_to_actions = {
+            self.input_keys.down_key: self.content.down,
+            'KEY_DOWN': self.content.down,
+            self.input_keys.up_key: self.content.up,
+            'KEY_UP': self.content.up,
+            self.input_keys.open_parent_key: self.content.open_parent,
+            'KEY_LEFT': self.content.open_parent,
+            self.input_keys.open_child_key: self.content.open_child,
+            'KEY_RIGHT': self.content.open_child,
+            self.input_keys.quit_key: self.quit,
+            self.input_keys.open_terminal_key: self.content.open_new_terminal,
+            self.input_keys.open_file: self.content.open_selected,
+            self.input_keys.toggle_hidden: self.content.toggle_show_hidden,
+            self.input_keys.delete: self.content.delete,
+            self.input_keys.new_folder: self.make_new_folder,
+            self.input_keys.rename: self.rename_selected,
+            self.input_keys.copy: self.content.copy,
+            self.input_keys.paste: self.content.paste,
+            self.input_keys.cut: self.content.cut,
+            self.input_keys.zip_unzip: self.content.zip_unzip,
+            self.input_keys.mark_item: self.content.toggle_mark_item,
+            self.input_keys.undo: self.content.undo
+        }
+
     def run(self):
         while self.is_working:
             try:
@@ -47,40 +71,12 @@ class Controller:
     def process_input(self):
         input_key = self.standard_screen.getkey()
         logging.info("input: {}".format(input_key))
-        if input_key == self.input_keys.down_key or input_key == 'KEY_DOWN':
-            self.content.down()
-        elif input_key == self.input_keys.up_key or input_key == 'KEY_UP':
-            self.content.up()
-        elif input_key == self.input_keys.open_parent_key or input_key == 'KEY_LEFT':
-            self.content.open_parent()
-        elif input_key == self.input_keys.open_child_key or input_key == 'KEY_RIGHT':
-            self.content.open_child()
-        elif input_key == self.input_keys.quit_key:
-            self.is_working = False
-        elif input_key == self.input_keys.open_terminal_key:
-            self.content.open_new_terminal()
-        elif input_key == self.input_keys.open_file:
-            self.content.open_selected()
-        elif input_key == self.input_keys.toggle_hidden:
-            self.content.toggle_show_hidden()
-        elif input_key == self.input_keys.delete:
-            self.content.delete()
-        elif input_key == self.input_keys.new_folder:
-            self.make_new_folder()
-        elif input_key == self.input_keys.rename:
-            self.rename_selected()
-        elif input_key == self.input_keys.copy:
-            self.content.copy()
-        elif input_key == self.input_keys.paste:
-            self.content.paste()
-        elif input_key == self.input_keys.cut:
-            self.content.cut()
-        elif input_key == self.input_keys.zip_unzip:
-            self.content.zip_unzip()
-        elif input_key == self.input_keys.mark_item:
-            self.content.toggle_mark_item()
-        elif input_key == self.input_keys.undo:
-            self.content.undo()
+
+        action = self.keys_to_actions.get(input_key)
+        action()
+
+    def quit(self):
+        self.is_working = False
 
     def make_new_folder(self):
         new_folder_name = self.pane_manager.render_create_folder_input_textbox(self.content.get_num_main_lines())
