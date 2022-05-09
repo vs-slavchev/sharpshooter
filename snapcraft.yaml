@@ -8,7 +8,7 @@ icon: img/sharpshooter_logo_512.png
 
 grade: devel
 confinement: devmode
-base: core20
+base: core18
 
 parts:
   sharpshooter:
