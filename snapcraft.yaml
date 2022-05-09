@@ -8,12 +8,11 @@ icon: img/sharpshooter_logo_512.png
 
 grade: devel
 confinement: devmode
-base: core18
+base: core20
 
 parts:
   sharpshooter:
     plugin: python
-    python-version: python3
     python-packages:
       - pathlib
     source: https://github.com/vs-slavchev/sharpshooter.git
