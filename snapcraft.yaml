@@ -16,8 +16,6 @@ parts:
     python-packages:
       - pathlib
     source: https://github.com/vs-slavchev/sharpshooter.git
-    stage-packages:
-      - python-six
 
 apps:
   sharpshooter:
