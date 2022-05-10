@@ -377,7 +377,7 @@ class Content:
         try:
             self.main_pane_selected_line_i = self.main_lines.index(fs_item)
         except ValueError:
-            logging.debug("Error selecting line {}", fs_item.text)
+            logging.debug("Error selecting line {}".format(fs_item.text))
 
     def get_marked_items(self):
         return list(map(lambda mii: self.main_lines[mii], self.marked_item_indices))
