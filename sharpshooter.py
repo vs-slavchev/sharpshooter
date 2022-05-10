@@ -5,7 +5,7 @@
 import curses
 import logging
 from pathlib import Path
-import platform
+import sys
 
 import controller
 
@@ -26,7 +26,7 @@ def set_up_logging():
     logging.basicConfig(format='%(asctime)s:%(levelname)s %(message)s',
                         filename=log_filename, level=logging.INFO, filemode='w')
     logging.info("sharpshooter started")
-    logging.info("Python version: {}".format(platform.python_version()))
+    logging.info("Python version: {}".format(sys.version))
     logging.info("curses version: {}".format(str(curses.version.decode())))
 
 
