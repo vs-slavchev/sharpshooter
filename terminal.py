@@ -4,14 +4,14 @@
 
 import subprocess
 import logging
-import os
+from pathlib import Path
 
 from fs_item import FsItem
 import utility
 
 
 def provide_initial_cwd():
-    home_path = os.path.expanduser('~') + "/"
+    home_path = str(Path.home()) + "/"
     logging.info("initial cwd: {}".format(home_path))
     return home_path
 
@@ -67,7 +67,7 @@ def open_file(full_path):
 
 
 def get_users_trash_path():
-    home_of_logged_in_user = os.path.expanduser('~')
+    home_of_logged_in_user = str(Path.home())
     return home_of_logged_in_user + "/.local/share/Trash/files/"
 
 
