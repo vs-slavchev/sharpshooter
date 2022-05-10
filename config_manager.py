@@ -4,7 +4,6 @@
 
 import os
 import configparser
-from pathlib import Path
 
 
 default_config = """[keys]
@@ -32,7 +31,7 @@ default_config = """[keys]
 
 class ConfigManager:
     def __init__(self):
-        home_dir = Path.home()
+        home_dir = os.path.expanduser('~')
         self.file_path = "{}/.sharpshooter_config".format(home_dir)
 
         if not os.path.isfile(self.file_path):

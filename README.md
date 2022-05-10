@@ -47,8 +47,8 @@ Simple to configure and hack at.
 [shutil](https://docs.python.org/3/library/shutil.html)
 
 [logging](https://docs.python.org/3/library/logging.html)
-# Diagrams
 
+# Block diagram
 ![block_diagram](./docs/block_diagram.svg)
 
 # Releasing
@@ -59,6 +59,10 @@ Simple to configure and hack at.
 5. cd into sharpshooter-* folder
 6. ```debmake -b":python3"```
 7. ```debuild```
+
+# Running in IntelliJ
+- add `PYTHONUNBUFFERED=1` as env variable
+- check Emulate terminal in output console
 
 # Inspired by
 [ranger](https://ranger.github.io/)
