@@ -73,8 +73,9 @@ class Controller:
         input_key = self.standard_screen.getkey()
         logging.info("input: {}".format(input_key))
 
-        action = self.keys_to_actions.get(input_key)
-        action()
+        if input_key in self.keys_to_actions:
+            action = self.keys_to_actions.get(input_key)
+            action()
 
     def quit(self):
         self.is_working = False
