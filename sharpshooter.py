@@ -6,6 +6,7 @@ import curses
 import logging
 from pathlib import Path
 import sys
+import os
 
 import controller
 
@@ -22,7 +23,7 @@ def incurses(standard_screen):
 
 
 def set_up_logging():
-    log_filename = "{}/.sharpshooter.log".format(Path.home())
+    log_filename = "{}/.sharpshooter.log".format(os.getenv("HOME"))
     logging.basicConfig(format='%(asctime)s:%(levelname)s %(message)s',
                         filename=log_filename, level=logging.INFO, filemode='w')
     logging.info("sharpshooter started")

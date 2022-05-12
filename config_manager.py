@@ -32,7 +32,8 @@ default_config = """[keys]
 
 class ConfigManager:
     def __init__(self):
-        home_dir = Path.home()
+        # home_dir = Path.home()
+        home_dir = os.getenv("HOME")
         self.file_path = "{}/.sharpshooter_config".format(home_dir)
 
         if not os.path.isfile(self.file_path):
