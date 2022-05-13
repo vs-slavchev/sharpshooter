@@ -200,6 +200,8 @@ class Content:
             self.main_pane_selected_line_i
 
     def open_selected(self):
+        if self.no_main_lines_exist():
+            return
         if self.currently_selected_item().is_folder():
             self.open_child()
         else:
