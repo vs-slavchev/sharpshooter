@@ -37,7 +37,7 @@ class Content:
 
         self.recalculate_content()
 
-    def toggle_show_hidden(self):
+    def toggle_hidden(self):
         logging.info("action: toggling hide/show hidden files from: {}".format(self.show_hidden))
         self.show_hidden = not self.show_hidden
 
@@ -372,6 +372,8 @@ class Content:
         return self.main_pane_selected_line_i
 
     def select_line_with(self, fs_item):
+        if not fs_item:
+            return
         if fs_item.is_hidden() and not self.show_hidden:
             return
         try:

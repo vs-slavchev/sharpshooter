@@ -33,7 +33,7 @@ class Controller:
             self.input_keys.quit_key: self.quit,
             self.input_keys.open_terminal_key: self.content.open_new_terminal,
             self.input_keys.open_file: self.content.open_selected,
-            self.input_keys.toggle_hidden: self.content.toggle_show_hidden,
+            self.input_keys.toggle_hidden: self.content.toggle_hidden,
             self.input_keys.delete: self.content.delete,
             self.input_keys.new_folder: self.make_new_folder,
             self.input_keys.rename: self.rename_selected,

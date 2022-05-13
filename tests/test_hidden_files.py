@@ -24,7 +24,7 @@ class TestHiddenFiles(unittest.TestCase):
         content = Content()
         content.main_pane_selected_line_i = 3
 
-        content.toggle_show_hidden()
+        content.toggle_hidden()
 
         self.assertEqual(1, content.main_pane_selected_line_i)
 
@@ -37,7 +37,7 @@ class TestHiddenFiles(unittest.TestCase):
         content = Content()
         content.main_pane_selected_line_i = 2
 
-        content.toggle_show_hidden()
+        content.toggle_hidden()
 
         self.assertEqual(1, content.main_pane_selected_line_i)
 
@@ -50,7 +50,7 @@ class TestHiddenFiles(unittest.TestCase):
         content = Content()
         content.main_pane_selected_line_i = 0
 
-        content.toggle_show_hidden()
+        content.toggle_hidden()
 
         self.assertEqual(0, content.main_pane_selected_line_i)
 
@@ -64,7 +64,7 @@ class TestHiddenFiles(unittest.TestCase):
         content.main_pane_selected_line_i = 0
         content.parent_pane_selected_line_i = 3
 
-        content.toggle_show_hidden()
+        content.toggle_hidden()
         content.recalculate_content()
 
         self.assertEqual(2, content.parent_pane_selected_line_i)
@@ -79,7 +79,7 @@ class TestHiddenFiles(unittest.TestCase):
         content.main_pane_selected_line_i = 2
         content.toggle_mark_item()
 
-        content.toggle_show_hidden()
+        content.toggle_hidden()
 
         self.assertEqual([1], content.marked_item_indices)
 
@@ -93,7 +93,7 @@ class TestHiddenFiles(unittest.TestCase):
         content.main_pane_selected_line_i = 1
         content.toggle_mark_item()
 
-        content.toggle_show_hidden()
+        content.toggle_hidden()
 
         self.assertEqual([], content.marked_item_indices)
 
@@ -108,7 +108,7 @@ class TestHiddenFiles(unittest.TestCase):
         content.main_pane_selected_line_i = 1
         content.toggle_mark_item()
 
-        content.toggle_show_hidden()
+        content.toggle_hidden()
 
         self.assertEqual([2], content.marked_item_indices)
 

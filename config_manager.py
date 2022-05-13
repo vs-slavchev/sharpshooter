@@ -4,8 +4,6 @@
 
 import os
 import configparser
-from pathlib import Path
-
 
 default_config = """[keys]
                     up = e

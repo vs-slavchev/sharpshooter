@@ -12,7 +12,6 @@ import utility
 
 
 def provide_initial_cwd():
-    # home_path = str(Path.home()) + "/"
     home_path = os.getenv("HOME") + "/"
     logging.info("initial cwd: {}".format(home_path))
     return home_path
