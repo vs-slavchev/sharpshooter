@@ -29,18 +29,25 @@ class CursedFilesPane:
         last_window_line_index = self.height - 2
         selected_line_is_below_screen = content_line_selected_i >= last_window_line_index + self.lines_render_offset
         selected_line_is_above_screen = content_line_selected_i <= self.lines_render_offset
+        number_items = len(self.fs_content)
         if selected_line_is_below_screen:
             self.lines_render_offset = content_line_selected_i - last_window_line_index
         elif selected_line_is_above_screen:
             self.lines_render_offset = content_line_selected_i
+        if number_items > last_window_line_index:
+            if number_items - self.lines_render_offset < last_window_line_index:
+                self.lines_render_offset = number_items - last_window_line_index - 1
+        else:
+            self.lines_render_offset = 0
 
-        number_lines = len(self.fs_content)
-        logging.debug("rendering {} lines".format(number_lines))
-        for screen_line_i in range(self.calculate_max_line_to_render(number_lines)):
+        # TODO check folder creating and renaming afterwards
+
+        logging.debug("rendering {} lines".format(number_items))
+        for screen_line_i in range(self.calculate_max_line_to_render(number_items)):
             if screen_line_i != content_line_selected_i - self.lines_render_offset:
                 self.render_line(screen_line_i)
 
-        if number_lines > 0:
+        if number_items > 0:
             self.render_selected_line(content_line_selected_i)
 
     def render_without_selected(self, fs_content):
