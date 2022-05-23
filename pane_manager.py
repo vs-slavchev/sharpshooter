@@ -65,12 +65,13 @@ class PaneManager:
         self.hotkey_guide.clear()
 
     def render_input_textbox(self, y_position, placeholder=FsItem("")):
+        text_attribute = self.main_window.calculate_attributes(placeholder)
+        pointer_window = curses.newwin(1, 2, y_position + 1, self.pane_width)
+        pointer_window.addnstr(0, 0, ">", 1, text_attribute)
+        pointer_window.refresh()
+
         edit_box_width = self.pane_width - 2
         edit_window = curses.newwin(1, edit_box_width, y_position + 1, self.pane_width + 1)
-        text_attribute = self.main_window.calculate_attributes(placeholder)
-        self.main_window.get_window().addnstr(y_position, 0, ">", 1, text_attribute)
-        self.main_window.refresh()
-
         original_name_text = utility.fit_text_to_line_length(edit_box_width, placeholder.get_clean_name())
         edit_window.addstr(0, 0, original_name_text)
         box = Textbox(edit_window)
@@ -81,7 +82,7 @@ class PaneManager:
         return str(message.strip("',/\n "))
 
     def render_create_folder_input_textbox(self, num_main_lines):
-        y_position = self.main_window.calculate_max_line_to_render(num_main_lines - 1) + 1
+        y_position = self.main_window.calculate_max_line_to_render(num_main_lines)
         new_folder_name = self.render_input_textbox(y_position)
         return new_folder_name
 
