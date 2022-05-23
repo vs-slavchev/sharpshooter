@@ -34,13 +34,13 @@ class CursedFilesPane:
             self.lines_render_offset = content_line_selected_i - last_window_line_index
         elif selected_line_is_above_screen:
             self.lines_render_offset = content_line_selected_i
+
         if number_items > last_window_line_index:
-            if number_items - self.lines_render_offset < last_window_line_index:
+            more_items_can_be_shown = number_items - self.lines_render_offset < last_window_line_index
+            if more_items_can_be_shown:
                 self.lines_render_offset = number_items - last_window_line_index - 1
         else:
             self.lines_render_offset = 0
-
-        # TODO check folder creating and renaming afterwards
 
         logging.debug("rendering {} lines".format(number_items))
         for screen_line_i in range(self.calculate_max_line_to_render(number_items)):
