@@ -31,6 +31,7 @@ class Content:
         self.deleted_files_queue = LifoQueue(maxsize=128)
 
         self.last_action_description = ""
+        self.pending_zip_name = ""
 
         self.config_manager = ConfigManager()
         self.show_hidden = self.config_manager.get_show_hidden()
@@ -190,6 +191,8 @@ class Content:
         return only_path_elements
 
     def get_renderable_content(self):
+        self.indicate_pending_zip()
+
         for marked_index in self.marked_item_indices:
             self.main_lines[marked_index].is_marked = True
 
@@ -198,6 +201,12 @@ class Content:
             self.child_lines, \
             self.parent_pane_selected_line_i, \
             self.main_pane_selected_line_i
+
+    def indicate_pending_zip(self):
+        item_zipped = FsItem(self.pending_zip_name + ".zip")
+        if not self.pending_zip_name == "" and item_zipped in self.main_lines:
+            pending_zip_i = self.main_lines.index(item_zipped)
+            self.main_lines[pending_zip_i].text = "[zipping...] " + self.main_lines[pending_zip_i].text
 
     def open_selected(self):
         if self.no_main_lines_exist():
@@ -304,6 +313,8 @@ class Content:
         logging.info("action: zip unzip")
         if self.no_main_lines_exist():
             return
+        if not self.pending_zip_name == "":
+            return
 
         format_abbreviation = ".zip"
         if self.currently_selected_item().text.endswith(format_abbreviation):
@@ -337,9 +348,15 @@ class Content:
         self.unmark_any_marked_items()
 
     def perform_zip(self, path_to_process, zip_file_name):
-        thread = threading.Thread(target=shutil.make_archive,
-                                  args=(self.to_path(zip_file_name), 'zip', path_to_process,))
+        thread = threading.Thread(target=self.zip_in_thread,
+                                  args=(zip_file_name, path_to_process,))
         thread.start()
+
+    def zip_in_thread(self, zip_file_name, path_to_process):
+        self.pending_zip_name = zip_file_name
+        # the resulting file will have .zip appended to its name by the util function
+        shutil.make_archive(self.to_path(zip_file_name), 'zip', path_to_process)
+        self.pending_zip_name = ""
 
     def unzip(self, format_abbreviation):
         logging.info("action: unzip")
