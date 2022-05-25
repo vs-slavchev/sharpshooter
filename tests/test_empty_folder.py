@@ -18,7 +18,7 @@ class TestEmptyFolder(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_delete_is_not_called_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
 
         content.delete()
@@ -28,7 +28,7 @@ class TestEmptyFolder(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_cut_is_not_started_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
 
         content.cut()
@@ -38,7 +38,7 @@ class TestEmptyFolder(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_copy_is_not_started_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
 
         content.copy()
@@ -48,7 +48,7 @@ class TestEmptyFolder(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_rename_is_not_called_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
 
         content.rename('b')

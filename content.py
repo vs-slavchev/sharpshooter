@@ -89,7 +89,7 @@ class Content:
 
     # returns the lines that represent the files and folders in the path_to_folder
     def query_pane_content(self, path_to_folder):
-        pane_content = terminal.get_ls(path_to_folder)
+        pane_content = terminal.list_all_in(path_to_folder)
 
         if not self.show_hidden:
             pane_content = list(filter(lambda fs_item: not fs_item.is_hidden(), pane_content))
@@ -97,7 +97,7 @@ class Content:
         return pane_content
 
     def query_parent_pane_content(self):
-        pane_content = terminal.get_ls(self.parent_directory())
+        pane_content = terminal.list_all_in(self.parent_directory())
 
         if not self.show_hidden:
             selected_parent_item = self.get_parent_folder()
@@ -245,11 +245,13 @@ class Content:
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
-        terminal.make_new_folder(self.to_path(new_folder_name))
-        self.recalculate_content()
-        self.select_line_with(FsItem(new_folder_name + "/"))
-        self.unmark_any_marked_items()
-        self.describe_last_action("Made new folder [{}].", new_folder_name)
+        if terminal.make_new_folder(self.to_path(new_folder_name)):
+            self.recalculate_content()
+            self.select_line_with(FsItem(new_folder_name + "/"))
+            self.unmark_any_marked_items()
+            self.describe_last_action("Made new folder [{}].", new_folder_name)
+        else:
+            self.describe_last_action("Already exists: [{}].", new_folder_name)
 
     def rename(self, new_name):
         logging.info("action: rename")
