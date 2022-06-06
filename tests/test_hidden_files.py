@@ -19,7 +19,7 @@ class TestHiddenFiles(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_last_line_is_selected_after_hiding_hidden_files_and_last_line_was_selected(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 3
@@ -32,7 +32,7 @@ class TestHiddenFiles(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_same_not_hidden_line_is_selected_after_hiding_hidden_files_and_its_index_changed(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 2
@@ -45,7 +45,7 @@ class TestHiddenFiles(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_first_not_hidden_line_is_selected_after_hiding_hidden_files(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 0
@@ -58,7 +58,7 @@ class TestHiddenFiles(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_hidden_parent_line_is_still_selected_after_hiding_hidden_files(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 0
@@ -73,7 +73,7 @@ class TestHiddenFiles(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_same_not_hidden_line_is_marked_after_hiding_hidden_files_and_its_index_changed(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 2
@@ -87,7 +87,7 @@ class TestHiddenFiles(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_hidden_line_is_UNmarked_after_hiding_hidden_files(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         self.set_show_hidden(mock_config_manager_class, True)
         content = Content()
         content.main_pane_selected_line_i = 1
@@ -101,7 +101,7 @@ class TestHiddenFiles(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_not_hidden_marked_line_is_marked_after_showing_hidden_files_and_its_index_changed(self, mock_terminal, mock_config_manager_class):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         self.set_show_hidden(mock_config_manager_class, False)
 
         content = Content()

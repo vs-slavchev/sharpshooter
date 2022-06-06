@@ -32,7 +32,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_second_line_is_selected_when_selecting_below_the_first_line(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 0
 
@@ -44,7 +44,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_first_line_is_marked_when_marking_it(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 0
 
@@ -56,7 +56,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_second_line_is_marked_when_marking_it_after_marking_first_line(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 0
 
@@ -71,7 +71,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_first_line_is_UNmarked_when_UNmarking_it(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 0
 
@@ -85,7 +85,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_penultimate_line_is_selected_when_selecting_above_the_last_line(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = content.get_num_main_lines() - 1
 
@@ -97,7 +97,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_first_line_is_selected_when_selecting_below_the_last_line(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = content.get_num_main_lines() - 1
 
@@ -109,7 +109,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_last_line_is_selected_when_selecting_above_the_first_line(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 0
 
@@ -121,7 +121,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_same_line_is_selected_after_deleting_selected(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 1
 
@@ -133,7 +133,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_pasted_line_is_selected_after_pasting(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 1
 
@@ -143,7 +143,7 @@ class TestContent(unittest.TestCase):
         def mock_return_values_during_paste(arg):
             return list(map(lambda vl: FsItem(vl), mock_directory_contents_during_paste[arg]))
 
-        mock_terminal.get_ls.side_effect = mock_return_values_during_paste
+        mock_terminal.list_all_in.side_effect = mock_return_values_during_paste
         content.paths_to_copy = ['/b/bb/bbb/bbbb']
 
         content.paste()

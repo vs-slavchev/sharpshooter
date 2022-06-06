@@ -19,7 +19,7 @@ class TestContent(unittest.TestCase):
     @mock.patch('content.terminal')
     def test_all_marked_lines_are_unmarked_when_opening_child_folder(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
-        mock_terminal.get_ls.side_effect = mock_return_values
+        mock_terminal.list_all_in.side_effect = mock_return_values
         content = Content()
         content.main_pane_selected_line_i = 0
 
