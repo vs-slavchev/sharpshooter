@@ -28,7 +28,7 @@ class Content:
         self.copy_removes_source = False
 
         self.marked_item_indices = []
-        self.deleted_files_queue = LifoQueue(maxsize=128)
+        self.deleted_original_file_paths_queue = LifoQueue(maxsize=128)
 
         self.last_action_description = ""
         self.pending_zip_name = ""
@@ -218,8 +218,8 @@ class Content:
 
     def undo(self):
         logging.info("action: undo")
-        if not self.deleted_files_queue.empty():
-            file_path = self.deleted_files_queue.get()
+        if not self.deleted_original_file_paths_queue.empty():
+            file_path = self.deleted_original_file_paths_queue.get()
             file_name = self.file_name_from_path(file_path)
             path_in_trash = terminal.get_users_trash_path() + file_name
             terminal.move(path_in_trash, file_path)
@@ -241,7 +241,7 @@ class Content:
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
     def save_deletion_info(self, deleted_path):
-        self.deleted_files_queue.put(deleted_path)
+        self.deleted_original_file_paths_queue.put(deleted_path)
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
