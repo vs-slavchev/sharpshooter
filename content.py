@@ -20,7 +20,7 @@ class Content:
         self.child_path = ""
         self.child_lines = []
 
-        self.cwd = terminal.provide_initial_cwd()
+        self.cwd = file_system.provide_initial_cwd()
         self.parent_pane_selected_line_i = 0
         self.main_pane_selected_line_i = 0
 
@@ -89,7 +89,7 @@ class Content:
 
     # returns the lines that represent the files and folders in the path_to_folder
     def query_pane_content(self, path_to_folder):
-        pane_content = terminal.list_all_in(path_to_folder)
+        pane_content = file_system.list_all_in(path_to_folder)
 
         if not self.show_hidden:
             pane_content = list(filter(lambda fs_item: not fs_item.is_hidden(), pane_content))
@@ -97,7 +97,7 @@ class Content:
         return pane_content
 
     def query_parent_pane_content(self):
-        pane_content = terminal.list_all_in(self.parent_directory())
+        pane_content = file_system.list_all_in(self.parent_directory())
 
         if not self.show_hidden:
             selected_parent_item = self.get_parent_folder()
@@ -214,15 +214,15 @@ class Content:
         if self.currently_selected_item().is_folder():
             self.open_child()
         else:
-            terminal.open_file(self.child_path)
+            file_system.open_file(self.child_path)
 
     def undo(self):
         logging.info("action: undo")
         if not self.deleted_original_file_paths_queue.empty():
             file_path = self.deleted_original_file_paths_queue.get()
             file_name = self.file_name_from_path(file_path)
-            path_in_trash = terminal.get_users_trash_path() + file_name
-            terminal.move(path_in_trash, file_path)
+            path_in_trash = file_system.get_users_trash_path() + file_name
+            file_system.move(path_in_trash, file_path)
             self.describe_last_action("Undone delete of [{}].", file_name)
 
     def delete(self):
@@ -232,10 +232,10 @@ class Content:
         if self.exist_marked_items():
             paths_to_delete = self.get_paths_of_marked_items()
             for path in paths_to_delete:
-                self.save_deletion_info(terminal.delete(path))
+                self.save_deletion_info(file_system.delete(path))
             self.describe_last_action("Deleted {} files.", len(paths_to_delete))
         else:
-            self.save_deletion_info(terminal.delete(self.child_path))
+            self.save_deletion_info(file_system.delete(self.child_path))
             self.describe_last_action("Deleted [{}].", self.file_name_from_path(self.child_path))
         self.unmark_any_marked_items()
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
@@ -245,7 +245,7 @@ class Content:
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
-        if terminal.make_new_folder(self.to_path(new_folder_name)):
+        if file_system.make_new_folder(self.to_path(new_folder_name)):
             self.recalculate_content()
             self.select_line_with(FsItem(new_folder_name + "/"))
             self.unmark_any_marked_items()
@@ -259,7 +259,7 @@ class Content:
             return
         old_path = self.to_path(self.currently_selected_item().text)
         new_path = self.to_path(new_name)
-        terminal.move(old_path, new_path)
+        file_system.move(old_path, new_path)
         self.describe_last_action("Renamed [{}] to [{}].", self.file_name_from_path(old_path), new_name)
 
     def copy(self):
@@ -292,9 +292,9 @@ class Content:
             return
         folder_to_paste_in = self.cwd
 
-        terminal_function = terminal.move if self.copy_removes_source else terminal.copy_paste
+        file_system_function = file_system.move if self.copy_removes_source else file_system.copy_paste
         for path in self.paths_to_copy:
-            terminal_function(path, folder_to_paste_in)
+            file_system_function(path, folder_to_paste_in)
 
         self.recalculate_content()
 
@@ -338,13 +338,13 @@ class Content:
         logging.info("action: zip marked")
         temp_marked_files_folder_name = 'temp_marked_files_folder/'
         temp_folder_path = self.to_path(temp_marked_files_folder_name)
-        terminal.make_new_folder(temp_folder_path)
+        file_system.make_new_folder(temp_folder_path)
         for marked_path in self.get_paths_of_marked_items():
-            terminal.copy_paste(marked_path, temp_folder_path)
+            file_system.copy_paste(marked_path, temp_folder_path)
         path_to_process = temp_folder_path
         zip_file_name = 'archive_{}'.format(utility.now())
         self.perform_zip(path_to_process, zip_file_name)
-        terminal.permanent_delete(temp_folder_path)
+        file_system.permanent_delete(temp_folder_path)
 
         self.describe_last_action("Zip {} files.", len(self.marked_item_indices))
         self.unmark_any_marked_items()
@@ -371,7 +371,7 @@ class Content:
         self.describe_last_action("Unzip [{}].", self.currently_selected_item().text)
 
     def open_new_terminal(self):
-        terminal.open_new_terminal(self.cwd)
+        file_system.open_new_terminal(self.cwd)
 
     def toggle_mark_item(self):
         logging.info("action: mark item")

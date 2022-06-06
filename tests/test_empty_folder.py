@@ -15,7 +15,7 @@ def mock_return_values(arg):
 
 class TestEmptyFolder(unittest.TestCase):
 
-    @mock.patch('content.terminal')
+    @mock.patch('content.file_system')
     def test_delete_is_not_called_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.list_all_in.side_effect = mock_return_values
@@ -25,7 +25,7 @@ class TestEmptyFolder(unittest.TestCase):
 
         mock_terminal.delete.assert_not_called()
 
-    @mock.patch('content.terminal')
+    @mock.patch('content.file_system')
     def test_cut_is_not_started_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.list_all_in.side_effect = mock_return_values
@@ -35,7 +35,7 @@ class TestEmptyFolder(unittest.TestCase):
 
         self.assertEqual([], content.paths_to_copy)
 
-    @mock.patch('content.terminal')
+    @mock.patch('content.file_system')
     def test_copy_is_not_started_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.list_all_in.side_effect = mock_return_values
@@ -45,7 +45,7 @@ class TestEmptyFolder(unittest.TestCase):
 
         self.assertEqual([], content.paths_to_copy)
 
-    @mock.patch('content.terminal')
+    @mock.patch('content.file_system')
     def test_rename_is_not_called_when_folder_is_empty(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd
         mock_terminal.list_all_in.side_effect = mock_return_values
