@@ -1,5 +1,5 @@
 """
-    Executes terminal commands and for some returns their output.
+    Interacts with the file system, executes terminal commands and for some returns their output.
 """
 
 import subprocess
