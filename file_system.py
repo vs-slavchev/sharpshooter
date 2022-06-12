@@ -33,7 +33,7 @@ def list_all_in(directory):
         # ignore not having permissions to list a dir
         pass
 
-    all_fs_items = directories + files
+    all_fs_items = sorted(directories) + sorted(files)
     cleaned_lines = list(map(lambda l: l[:-1] if l.endswith("*") else l, all_fs_items))
 
     # drop symbolic links, sockets, named pipes and doors
