@@ -43,6 +43,7 @@ class InputKeys:
             self.format_hotkey_description(self.toggle_hidden, 'toggle_hidden'),
             self.format_hotkey_description(self.mark_item, 'mark_item'),
             self.format_hotkey_description(self.undo, 'undo'),
+            self.format_hotkey_description(self.open_terminal_key, 'terminal'),
             self.format_hotkey_description(self.quit_key, 'quit')
         ]
         return "Keys: " + "; ".join(keys_to_display_in_guide)
