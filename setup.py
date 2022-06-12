@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='sharpshooter',
-    version='1.3.6',
+    version='1.3.7',
 	description='minimal terminal application that in a single key press lets you navigate and copy/cut/delete/archive your files and open the terminal',
 	author='Veselin Slavchev',
 	author_email='vs_slavchev@abv.bg',
