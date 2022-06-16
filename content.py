@@ -11,6 +11,7 @@ from queue import LifoQueue
 from config_manager import ConfigManager
 from fs_item import FsItem
 import utility
+from file_system_error import FileSystemError
 
 
 class Content:
@@ -232,11 +233,17 @@ class Content:
         if self.exist_marked_items():
             paths_to_delete = self.get_paths_of_marked_items()
             for path in paths_to_delete:
-                self.save_deletion_info(file_system.delete(path))
-            self.describe_last_action("Deleted {} files.", len(paths_to_delete))
+                try:
+                    self.save_deletion_info(file_system.delete(path))
+                    self.describe_last_action("Deleted {} files.", len(paths_to_delete))
+                except FileSystemError as e:
+                    self.describe_last_action(e.message + " {} files.", len(paths_to_delete))
         else:
-            self.save_deletion_info(file_system.delete(self.child_path))
-            self.describe_last_action("Deleted [{}].", self.file_name_from_path(self.child_path))
+            try:
+                self.save_deletion_info(file_system.delete(self.child_path))
+                self.describe_last_action("Deleted [{}].", self.file_name_from_path(self.child_path))
+            except FileSystemError as e:
+                self.describe_last_action(e.message + " [{}].", self.file_name_from_path(self.child_path))
         self.unmark_any_marked_items()
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
@@ -245,13 +252,14 @@ class Content:
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
-        if file_system.make_new_folder(self.to_path(new_folder_name)):
+        try:
+            file_system.make_new_folder(self.to_path(new_folder_name))
             self.recalculate_content()
             self.select_line_with(FsItem(new_folder_name + "/"))
             self.unmark_any_marked_items()
             self.describe_last_action("Made new folder [{}].", new_folder_name)
-        else:
-            self.describe_last_action("Already exists: [{}].", new_folder_name)
+        except FileSystemError as e:
+            self.describe_last_action(e.message + ": [{}].", new_folder_name)
 
     def rename(self, new_name):
         logging.info("action: rename")
@@ -259,8 +267,11 @@ class Content:
             return
         old_path = self.to_path(self.currently_selected_item().text)
         new_path = self.to_path(new_name)
-        file_system.move(old_path, new_path)
-        self.describe_last_action("Renamed [{}] to [{}].", self.file_name_from_path(old_path), new_name)
+        try:
+            file_system.move(old_path, new_path)
+            self.describe_last_action("Renamed [{}] to [{}].", self.file_name_from_path(old_path), new_name)
+        except FileSystemError as e:
+            self.describe_last_action(e.message + " [{}].", self.file_name_from_path(old_path))
 
     def copy(self):
         logging.info("action: copy")
@@ -293,23 +304,27 @@ class Content:
         folder_to_paste_in = self.cwd
 
         file_system_function = file_system.move if self.copy_removes_source else file_system.copy_paste
-        for path in self.paths_to_copy:
-            file_system_function(path, folder_to_paste_in)
-
-        self.recalculate_content()
-
-        # select newly copied file
-        if len(self.paths_to_copy) == 1:
-            newly_pasted_item = FsItem(utility.extract_item_name_from_path(self.paths_to_copy[0]))
-            self.select_line_with(newly_pasted_item)
-            self.describe_last_action("Pasted [{}].", newly_pasted_item.text)
+        try:
+            for path in self.paths_to_copy:
+                file_system_function(path, folder_to_paste_in)
+        except FileSystemError as e:
+            self.describe_last_action(e.message + " {} files.", len(self.paths_to_copy))
+            self.paths_to_copy = []
         else:
-            self.main_pane_selected_line_i = 0
-            self.describe_last_action("Pasted {} files.", len(self.paths_to_copy))
+            self.recalculate_content()
 
-        self.paths_to_copy = []
-        self.copy_removes_source = False
-        self.unmark_any_marked_items()
+            # select newly pasted file
+            if len(self.paths_to_copy) == 1:
+                newly_pasted_item = FsItem(utility.extract_item_name_from_path(self.paths_to_copy[0]))
+                self.select_line_with(newly_pasted_item)
+                self.describe_last_action("Pasted [{}].", newly_pasted_item.text)
+            elif len(self.paths_to_copy) > 1:
+                self.main_pane_selected_line_i = 0
+                self.describe_last_action("Pasted {} files.", len(self.paths_to_copy))
+        finally:
+            self.paths_to_copy = []
+            self.copy_removes_source = False
+            self.unmark_any_marked_items()
 
     def zip_unzip(self):
         logging.info("action: zip unzip")

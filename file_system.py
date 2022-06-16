@@ -9,6 +9,7 @@ from datetime import datetime
 
 from fs_item import FsItem
 import utility
+from file_system_error import FileSystemError
 
 
 def provide_initial_cwd():
@@ -90,14 +91,14 @@ def get_users_trash_path():
 
 def delete(path_to_delete):
     try:
-        shutil.move(path_to_delete, get_users_trash_path())
+        move(path_to_delete, get_users_trash_path())
         return path_to_delete
     except shutil.Error:  # file with this name already exists
         if utility.is_folder(path_to_delete):
             path_to_delete = path_to_delete[:-1]
         fs_item_name = utility.extract_item_name_from_path(path_to_delete)
         timestamp_string = datetime.now().strftime("_%d-%m-%Y_%H-%M-%S")
-        shutil.move(path_to_delete, get_users_trash_path() + fs_item_name + timestamp_string)
+        move(path_to_delete, get_users_trash_path() + fs_item_name + timestamp_string)
         return path_to_delete + timestamp_string
 
 
@@ -109,21 +110,29 @@ def make_new_folder(path_of_folder_to_make):
     if utility.is_folder(path_of_folder_to_make):
         path_of_folder_to_make = path_of_folder_to_make.rstrip('/')
     if os.path.exists(path_of_folder_to_make):
-        return False
+        raise FileSystemError("Already exists")
     else:
-        os.makedirs(path_of_folder_to_make)
-        return True
+        try:
+            os.makedirs(path_of_folder_to_make)
+        except OSError:
+            raise FileSystemError("No permissions to make a folder here")
 
 
 def move(old_path, new_path):
-    shutil.move(old_path, new_path)
+    try:
+        shutil.move(old_path, new_path)
+    except PermissionError:
+        raise FileSystemError("No permission to move")
 
 
 def copy_paste(old_path, new_path):
     logging.info("pasting from {} to {}".format(old_path, new_path))
-    if utility.is_folder(old_path):
-        old_path_no_slash = old_path[:-1]
-        folder_name = utility.extract_item_name_from_path(old_path)
-        shutil.copytree(old_path_no_slash, new_path + folder_name, dirs_exist_ok=True)
-    else:
-        shutil.copy2(old_path, new_path)
+    try:
+        if utility.is_folder(old_path):
+            old_path_no_slash = old_path[:-1]
+            folder_name = utility.extract_item_name_from_path(old_path)
+            shutil.copytree(old_path_no_slash, new_path + folder_name, dirs_exist_ok=True)
+        else:
+            shutil.copy2(old_path, new_path)
+    except PermissionError:
+        raise FileSystemError("No permission to paste")

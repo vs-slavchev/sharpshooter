@@ -30,6 +30,8 @@ Simple to configure and hack at.
 
 `snap remove sharpshooter`
 
+or download the latest .deb from the releases.
+
 ### Change hotkeys
 
 - edit the `.sharpshooter_config` in your home dir with your preferred hotkeys
@@ -51,7 +53,7 @@ Simple to configure and hack at.
 # Block diagram
 ![block_diagram](./docs/block_diagram.svg)
 
-# Releasing
+# Releasing as .deb
 1. install ```sudo apt-get install build-essential devscripts debhelper debmake dh-python python3-all```
 2. ```python3 setup.py sdist```
 3. ```mv dist/sharpshooter-*.tar.gz .```
