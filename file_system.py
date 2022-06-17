@@ -30,7 +30,7 @@ def list_all_in(directory):
                     files.append(entry.name)
                 elif entry.is_dir():
                     directories.append(entry.name + "/")
-    except PermissionError:
+    except (PermissionError, OSError):
         # ignore not having permissions to list a dir
         pass
 
@@ -114,14 +114,14 @@ def make_new_folder(path_of_folder_to_make):
     else:
         try:
             os.makedirs(path_of_folder_to_make)
-        except OSError:
+        except (PermissionError, OSError):
             raise FileSystemError("No permissions to make a folder here")
 
 
 def move(old_path, new_path):
     try:
         shutil.move(old_path, new_path)
-    except PermissionError:
+    except (PermissionError, shutil.Error, OSError):
         raise FileSystemError("No permission to move")
 
 
@@ -134,5 +134,5 @@ def copy_paste(old_path, new_path):
             shutil.copytree(old_path_no_slash, new_path + folder_name, dirs_exist_ok=True)
         else:
             shutil.copy2(old_path, new_path)
-    except PermissionError:
+    except (PermissionError, shutil.Error, OSError):
         raise FileSystemError("No permission to paste")
