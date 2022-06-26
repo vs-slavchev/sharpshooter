@@ -131,8 +131,16 @@ def copy_paste(old_path, new_path):
         if utility.is_folder(old_path):
             old_path_no_slash = old_path[:-1]
             folder_name = utility.extract_item_name_from_path(old_path)
-            shutil.copytree(old_path_no_slash, new_path + folder_name, dirs_exist_ok=True)
+            new_folder_path = new_path + folder_name[:-1]
+            while os.path.exists(new_folder_path):
+                new_folder_path = new_folder_path + "_copy"
+
+            shutil.copytree(old_path_no_slash, new_folder_path, dirs_exist_ok=True)
         else:
+            file_name = utility.extract_item_name_from_path(old_path)
+            new_path = new_path + file_name
+            while os.path.exists(new_path):
+                new_path = new_path + "_copy"
             shutil.copy2(old_path, new_path)
     except (PermissionError, shutil.Error, OSError):
         raise FileSystemError("No permission to paste")
