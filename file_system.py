@@ -7,13 +7,14 @@ import logging
 import os
 from datetime import datetime
 
+import platform_utils
 from fs_item import FsItem
 import utility
 from file_system_error import FileSystemError
 
 
 def provide_initial_cwd():
-    home_path = os.getenv("HOME") + "/"
+    home_path = os.path.expanduser('~') + '/'
     logging.info("initial cwd: {}".format(home_path))
     return home_path
 
@@ -49,57 +50,95 @@ def list_all_in(directory):
 
 def open_new_terminal(directory_to_open_in):
     logging.info("opening terminal in: {}".format(directory_to_open_in))
-
-    # try different terminals until one of them works
-    terminal_commands = [
-        ["exo-open", "--working-directory", directory_to_open_in, "--launch", "TerminalEmulator"],
-        ["x-terminal-emulator", "--working-directory", directory_to_open_in],
-        ["gnome-terminal", "--working-directory", directory_to_open_in],
-        ["xfce4-terminal", "--working-directory", directory_to_open_in],
-        ["konsole", "--workdir", directory_to_open_in],
-        ["urxvt", "-cd", directory_to_open_in]
-    ]
-    for command in terminal_commands:
+    for cmd in platform_utils.terminal_candidates(directory_to_open_in):
         try:
-            subprocess.call(command)
-            break  # stop trying others on success
+            # cwd= ensures xterm (which has no working-dir flag) opens in the right place;
+            # it is harmless for terminals that use explicit flags.
+            subprocess.call(cmd, cwd=directory_to_open_in)
+            return
         except OSError:
-            logging.warning("terminal call not supported: {}".format(command))
+            logging.warning("terminal call not supported: {}".format(cmd))
 
 
 def open_file(full_path):
     if utility.is_folder(full_path):
         return
+    if platform_utils.platform_type() == 'macos':
+        cmd = ['open', full_path]
+    else:
+        cmd = ['xdg-open', full_path]
+    try:
+        subprocess.Popen(cmd, close_fds=True,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except OSError:
+        logging.warning("could not execute open file command: {}".format(cmd))
 
-    # try different commands until one of them works
-    terminal_commands = [
-        ['xdg-open', full_path],
-        ['open', full_path],
-    ]
-    for command in terminal_commands:
-        try:
-            subprocess.Popen(command, close_fds=True)
-            break  # stop trying others on success
-        except OSError:
-            logging.warning("could not execute open file command: {}".format(command))
 
+# ---------------------------------------------------------------------------
+# Trash helpers
+# ---------------------------------------------------------------------------
 
 def get_users_trash_path():
-    home_of_logged_in_user = os.getenv("HOME")
-    return home_of_logged_in_user + "/.local/share/Trash/files/"
+    if platform_utils.platform_type() == 'macos':
+        return os.path.expanduser('~/.Trash/')
+    return os.path.expanduser('~/.local/share/Trash/files/')
+
+
+def _trash_info_dir():
+    return os.path.expanduser('~/.local/share/Trash/info/')
+
+
+def _write_trashinfo(trashed_name, original_path):
+    """Write a freedesktop .trashinfo metadata file (Linux only)."""
+    info_path = _trash_info_dir() + trashed_name + '.trashinfo'
+    deletion_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    content = '[Trash Info]\nPath={}\nDeletionDate={}\n'.format(
+        original_path, deletion_date)
+    try:
+        os.makedirs(_trash_info_dir(), exist_ok=True)
+        with open(info_path, 'w') as f:
+            f.write(content)
+    except OSError:
+        pass  # non-fatal: the file is in the trash, metadata is just missing
+
+
+def _remove_trashinfo(trashed_name):
+    """Remove the .trashinfo metadata file when a file is restored (Linux only)."""
+    info_path = _trash_info_dir() + trashed_name + '.trashinfo'
+    try:
+        os.remove(info_path)
+    except OSError:
+        pass
 
 
 def delete(path_to_delete):
+    trash_path = get_users_trash_path()
+    os.makedirs(trash_path, exist_ok=True)
+
+    # Strip trailing slash for name extraction; keep original for the actual move.
+    original_path = path_to_delete.rstrip('/')
+    trashed_name = os.path.basename(original_path)
+
     try:
-        move(path_to_delete, get_users_trash_path())
+        move(path_to_delete, trash_path)
+        if platform_utils.platform_type() == 'linux':
+            _write_trashinfo(trashed_name, original_path)
         return path_to_delete
-    except shutil.Error:  # file with this name already exists
-        if utility.is_folder(path_to_delete):
-            path_to_delete = path_to_delete[:-1]
-        fs_item_name = utility.extract_item_name_from_path(path_to_delete)
+    except shutil.Error:  # name collision in trash
         timestamp_string = datetime.now().strftime("_%d-%m-%Y_%H-%M-%S")
-        move(path_to_delete, get_users_trash_path() + fs_item_name + timestamp_string)
-        return path_to_delete + timestamp_string
+        trashed_name = trashed_name + timestamp_string
+        move(path_to_delete, trash_path + trashed_name)
+        if platform_utils.platform_type() == 'linux':
+            _write_trashinfo(trashed_name, original_path)
+        return original_path + timestamp_string
+
+
+def restore_from_trash(file_name, original_path):
+    """Move a file back from the platform trash to its original location."""
+    path_in_trash = get_users_trash_path() + file_name
+    move(path_in_trash, original_path)
+    if platform_utils.platform_type() == 'linux':
+        _remove_trashinfo(file_name)
 
 
 def permanent_delete(path_to_delete):
