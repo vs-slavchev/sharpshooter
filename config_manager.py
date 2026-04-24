@@ -1,6 +1,5 @@
-"""Reads and writes the config file (TOML format, migrates from legacy INI on first run)."""
+"""Reads and writes the TOML config file."""
 import os
-import configparser
 
 try:
     import tomllib
@@ -31,23 +30,7 @@ class ConfigManager:
             self._write(cfg)
             return cfg
         with open(self.file_path, 'rb') as f:
-            try:
-                return _merge(_DEFAULTS, tomllib.load(f))
-            except tomllib.TOMLDecodeError:
-                return self._migrate_ini()
-
-    def _migrate_ini(self):
-        cfg = _copy(_DEFAULTS)
-        ini = configparser.ConfigParser()
-        ini.read(self.file_path)
-        if 'keys' in ini:
-            for k, v in ini['keys'].items():
-                if k in cfg['keys']:
-                    cfg['keys'][k] = v.encode('latin1').decode('unicode_escape')
-        if 'settings' in ini and 'show_hidden' in ini['settings']:
-            cfg['settings']['show_hidden'] = ini['settings'].getboolean('show_hidden')
-        self._write(cfg)
-        return cfg
+            return _merge(_DEFAULTS, tomllib.load(f))
 
     def _write(self, cfg):
         with open(self.file_path, 'wb') as f:
