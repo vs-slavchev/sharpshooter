@@ -222,8 +222,7 @@ class Content:
         if not self.deleted_original_file_paths_queue.empty():
             file_path = self.deleted_original_file_paths_queue.get()
             file_name = self.file_name_from_path(file_path)
-            path_in_trash = file_system.get_users_trash_path() + file_name
-            file_system.move(path_in_trash, file_path)
+            file_system.restore_from_trash(file_name, file_path)
             self.describe_last_action("Undone delete of [{}].", file_name)
 
     def delete(self):
