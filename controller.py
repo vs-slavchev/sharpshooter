@@ -42,7 +42,8 @@ class Controller:
             self.input_keys.cut: self.content.cut,
             self.input_keys.zip_unzip: self.content.zip_unzip,
             self.input_keys.mark_item: self.content.toggle_mark_item,
-            self.input_keys.undo: self.content.undo
+            self.input_keys.undo: self.content.undo,
+            self.input_keys.toggle_hotkeys: self.content.toggle_hotkeys,
         }
 
     def run(self):
@@ -62,7 +63,8 @@ class Controller:
         self.pane_manager.render_path_indicator(self.content.cwd)
         self.pane_manager.render_panes(self.content.get_renderable_content())
         self.pane_manager.render_last_action_description(self.content.last_action_description)
-        self.pane_manager.render_hotkey_guide(self.input_keys.hotkey_guide)
+        if self.content.show_hotkeys:
+            self.pane_manager.render_hotkey_guide(self.input_keys.hotkey_guide)
 
         self.standard_screen.refresh()
         self.pane_manager.refresh_panes()

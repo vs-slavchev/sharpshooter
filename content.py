@@ -36,6 +36,7 @@ class Content:
 
         self.config_manager = ConfigManager()
         self.show_hidden = self.config_manager.get_show_hidden()
+        self.show_hotkeys = self.config_manager.get_show_hotkeys()
 
         self.recalculate_content()
 
@@ -53,6 +54,11 @@ class Content:
         # save change to the config file
         value_to_write = str(self.show_hidden)
         self.config_manager.set_config_settings_value('show_hidden', value_to_write)
+
+    def toggle_hotkeys(self):
+        logging.info("action: toggling hotkey guide from: {}".format(self.show_hotkeys))
+        self.show_hotkeys = not self.show_hotkeys
+        self.config_manager.set_config_settings_value('show_hotkeys', self.show_hotkeys)
 
     # the position of the selected line might change if items before it are hidden, but we want the same item
     # to be selected after either hiding or showing

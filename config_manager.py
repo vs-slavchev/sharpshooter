@@ -1,57 +1,81 @@
-"""
-    Reads and writes to a config file.
-"""
-
+"""Reads and writes the config file (TOML format, migrates from legacy INI on first run)."""
 import os
 import configparser
 
-default_config = """[keys]
-                    up = e
-                    down = n
-                    open_parent = k
-                    open_child = i
-                    quit = q
-                    open_terminal = t
-                    open_file = \\n
-                    toggle_hidden = h
-                    delete = x
-                    new_folder = f
-                    rename = r
-                    copy = c
-                    paste = p
-                    cut = d
-                    zip_unzip = z
-                    mark_item = m
-                    undo = u
-                    
-                    [settings]
-                    show_hidden = False"""
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+import tomli_w
+
+_DEFAULTS = {
+    'keys': {
+        'up': 'e', 'down': 'n', 'open_parent': 'k', 'open_child': 'i',
+        'quit': 'q', 'open_terminal': 't', 'open_file': '\n',
+        'toggle_hidden': 'h', 'delete': 'x', 'new_folder': 'f',
+        'rename': 'r', 'copy': 'c', 'paste': 'p', 'cut': 'd',
+        'zip_unzip': 'z', 'mark_item': 'm', 'undo': 'u', 'toggle_hotkeys': '?',
+    },
+    'settings': {'show_hidden': False, 'show_hotkeys': True},
+}
 
 
 class ConfigManager:
     def __init__(self):
-        # home_dir = Path.home()
-        home_dir = os.getenv("HOME")
-        self.file_path = "{}/.sharpshooter_config".format(home_dir)
+        self.file_path = os.path.expanduser('~') + '/.sharpshooter_config'
+        self.config = self._load()
 
-        if not os.path.isfile(self.file_path):
-            with open(self.file_path, 'w+') as new_file:
-                new_file.write(default_config)
+    def _load(self):
+        if not os.path.exists(self.file_path):
+            cfg = _copy(_DEFAULTS)
+            self._write(cfg)
+            return cfg
+        with open(self.file_path, 'rb') as f:
+            try:
+                return _merge(_DEFAULTS, tomllib.load(f))
+            except tomllib.TOMLDecodeError:
+                return self._migrate_ini()
 
-        self.config = configparser.ConfigParser()
-        self.config.read(self.file_path)
+    def _migrate_ini(self):
+        cfg = _copy(_DEFAULTS)
+        ini = configparser.ConfigParser()
+        ini.read(self.file_path)
+        if 'keys' in ini:
+            for k, v in ini['keys'].items():
+                if k in cfg['keys']:
+                    cfg['keys'][k] = v.encode('latin1').decode('unicode_escape')
+        if 'settings' in ini and 'show_hidden' in ini['settings']:
+            cfg['settings']['show_hidden'] = ini['settings'].getboolean('show_hidden')
+        self._write(cfg)
+        return cfg
+
+    def _write(self, cfg):
+        with open(self.file_path, 'wb') as f:
+            tomli_w.dump(cfg, f)
 
     def set_config_settings_value(self, key, value):
-        self.config.set('settings', key, value)
-        self.save_config()
-
-    def save_config(self):
-        with open(self.file_path, 'w') as configfile:
-            self.config.write(configfile)
+        self.config['settings'][key] = value
+        self._write(self.config)
 
     def get_key_for(self, command):
-        # in order to read strings with chars that need escaping we need to encode and then decode
-        return str(self.config['keys'][command]).encode('latin1').decode('unicode_escape')
+        return self.config['keys'].get(command, _DEFAULTS['keys'].get(command, ''))
 
     def get_show_hidden(self):
-        return self.config['settings'].getboolean('show_hidden')
+        return self.config['settings'].get('show_hidden', False)
+
+    def get_show_hotkeys(self):
+        return self.config['settings'].get('show_hotkeys', True)
+
+
+def _copy(d):
+    return {k: dict(v) if isinstance(v, dict) else v for k, v in d.items()}
+
+
+def _merge(base, override):
+    out = _copy(base)
+    for section, values in override.items():
+        if section in out and isinstance(values, dict):
+            out[section].update(values)
+        else:
+            out[section] = values
+    return out

@@ -11,7 +11,10 @@ setup(
 	license='GNU',
 	url='https://github.com/vs-slavchev/sharpshooter',
     py_modules=['sharpshooter', 'controller', 'content', 'config_manager', 'cursed_files_pane', 'fs_item', 'input_keys', 'pane_manager', 'file_system', 'platform_utils', 'utility', 'single_line_window', 'file_system_error'],
-    install_requires=[],
+    install_requires=[
+        'tomli-w',
+        'tomli; python_version < "3.11"',
+    ],
     entry_points='''
         [console_scripts]
         sharpshooter=sharpshooter:main
