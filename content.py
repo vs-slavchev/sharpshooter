@@ -51,9 +51,7 @@ class Content:
         else:
             self.select_closest_to_hidden_item()
 
-        # save change to the config file
-        value_to_write = str(self.show_hidden)
-        self.config_manager.set_config_settings_value('show_hidden', value_to_write)
+        self.config_manager.set_config_settings_value('show_hidden', self.show_hidden)
 
     def toggle_hotkeys(self):
         logging.info("action: toggling hotkey guide from: {}".format(self.show_hotkeys))
