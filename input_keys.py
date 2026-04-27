@@ -28,6 +28,7 @@ class InputKeys:
         self.zip_unzip = config_manager.get_key_for('zip_unzip')
         self.mark_item = config_manager.get_key_for('mark_item')
         self.undo = config_manager.get_key_for('undo')
+        self.toggle_hotkeys = config_manager.get_key_for('toggle_hotkeys')
 
         self.hotkey_guide = self.generate_hotkey_guide()
 
@@ -44,6 +45,7 @@ class InputKeys:
             self.format_hotkey_description(self.mark_item, 'mark_item'),
             self.format_hotkey_description(self.undo, 'undo'),
             self.format_hotkey_description(self.open_terminal_key, 'terminal'),
+            self.format_hotkey_description(self.toggle_hotkeys, 'hotkeys'),
             self.format_hotkey_description(self.quit_key, 'quit')
         ]
         return "Keys: " + "; ".join(keys_to_display_in_guide)
