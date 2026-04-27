@@ -34,7 +34,8 @@ class ConfigManager:
             with open(self.file_path, 'w') as f:
                 f.write(_DEFAULT_CONFIG)
         self.config = configparser.ConfigParser()
-        self.config.read(self.file_path)
+        self.config.read_string(_DEFAULT_CONFIG)  # seeds defaults for any missing keys
+        self.config.read(self.file_path)          # user values override
 
     def set_config_settings_value(self, key, value):
         self.config.set('settings', key, str(value))
