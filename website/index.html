@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sharpshooter — minimal terminal file manager</title>
+</head>
+<body>
+  <h1>sharpshooter</h1>
+  <p>Minimal file manager in the terminal. Single-key hotkeys, zero friction.</p>
+
+  <h2>Install</h2>
+
+  <h3>With pipx</h3>
+  <pre>pipx install git+https://github.com/vs-slavchev/sharpshooter.git</pre>
+  <p>Update: <code>pipx upgrade sharpshooter</code></p>
+
+  <h3>With uv</h3>
+  <pre>uv tool install git+https://github.com/vs-slavchev/sharpshooter.git</pre>
+  <p>Update: <code>uv tool upgrade sharpshooter</code></p>
+
+  <h3>One-liner (requires pipx or uv)</h3>
+  <pre>curl -fsSL https://vs-slavchev.github.io/sharpshooter/install.sh | bash</pre>
+
+  <h2>Usage</h2>
+  <pre>sharpshooter</pre>
+
+  <h2>Default keys</h2>
+  <table>
+    <tr><td>e / n</td><td>up / down</td></tr>
+    <tr><td>k / i</td><td>parent / child directory</td></tr>
+    <tr><td>f</td><td>new folder</td></tr>
+    <tr><td>r</td><td>rename</td></tr>
+    <tr><td>c / d / p</td><td>copy / cut / paste</td></tr>
+    <tr><td>x</td><td>delete (to trash)</td></tr>
+    <tr><td>u</td><td>undo delete</td></tr>
+    <tr><td>z</td><td>zip / unzip</td></tr>
+    <tr><td>m</td><td>mark file</td></tr>
+    <tr><td>h</td><td>toggle hidden files</td></tr>
+    <tr><td>t</td><td>open terminal here</td></tr>
+    <tr><td>?</td><td>toggle hotkey guide</td></tr>
+    <tr><td>q</td><td>quit</td></tr>
+  </table>
+  <p>All keys are configurable in <code>~/.sharpshooter_config</code>.</p>
+
+  <h2>Links</h2>
+  <ul>
+    <li><a href="https://github.com/vs-slavchev/sharpshooter">GitHub</a></li>
+  </ul>
+</body>
+</html>
