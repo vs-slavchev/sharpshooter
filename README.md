@@ -27,11 +27,11 @@ Simple to configure and hack at.
 
 # Install
 
-Requires Python 3 and [pipx](https://pipx.pypa.io) or [uv](https://docs.astral.sh/uv/).
+Requires Python 3.
 
-**pipx**
+**pip**
 ```bash
-pipx install git+https://github.com/vs-slavchev/sharpshooter.git
+pip install --user git+https://github.com/vs-slavchev/sharpshooter.git
 ```
 
 **uv**
@@ -47,13 +47,13 @@ curl -fsSL https://vs-slavchev.github.io/sharpshooter/install.sh | bash
 ## Update
 
 ```bash
-pipx upgrade sharpshooter   # or: uv tool upgrade sharpshooter
+pip install --user --upgrade git+https://github.com/vs-slavchev/sharpshooter.git   # or: uv tool upgrade sharpshooter
 ```
 
 ## Uninstall
 
 ```bash
-pipx uninstall sharpshooter   # or: uv tool uninstall sharpshooter
+pip uninstall sharpshooter   # or: uv tool uninstall sharpshooter
 ```
 
 ## Configuration
