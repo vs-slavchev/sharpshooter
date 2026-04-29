@@ -8,8 +8,9 @@ from config_manager import ConfigManager
 
 
 class InputKeys:
-    def __init__(self):
-        config_manager = ConfigManager()
+    def __init__(self, config_manager=None):
+        if config_manager is None:
+            config_manager = ConfigManager()
 
         self.up_key = config_manager.get_key_for('up')
         self.down_key = config_manager.get_key_for('down')
