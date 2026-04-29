@@ -1,5 +1,5 @@
 
-# Sharpshooter ![LOGO](./img/sharpshooter_logo.svg) [![sharpshooter](https://snapcraft.io/sharpshooter/badge.svg)](https://snapcraft.io/sharpshooter) [![Build Status](https://travis-ci.com/vs-slavchev/sharpshooter.svg?branch=master)](https://travis-ci.com/vs-slavchev/sharpshooter)
+# Sharpshooter ![LOGO](./img/sharpshooter_logo.svg) [![CI](https://github.com/vs-slavchev/sharpshooter/actions/workflows/ci.yml/badge.svg)](https://github.com/vs-slavchev/sharpshooter/actions/workflows/ci.yml)
 
 Minimal file manager in the terminal.
 
@@ -25,24 +25,68 @@ Simple to configure and hack at.
 - [x] select multiple files
 - [x] configurable hotkeys
 
-# Install and remove
-`snap install --beta sharpshooter --devmode`
+# Install
 
-`snap remove sharpshooter`
+Requires Python 3 and [pipx](https://pipx.pypa.io) or [uv](https://docs.astral.sh/uv/).
 
-or download the latest .deb from the releases.
+**pipx**
+```bash
+pipx install git+https://github.com/vs-slavchev/sharpshooter.git
+```
 
-### Change hotkeys
+**uv**
+```bash
+uv tool install git+https://github.com/vs-slavchev/sharpshooter.git
+```
 
-- edit the `.sharpshooter_config` in your home dir with your preferred hotkeys
+**one-liner** (uses whichever of the above is available)
+```bash
+curl -fsSL https://vs-slavchev.github.io/sharpshooter/install.sh | bash
+```
+
+## Update
+
+```bash
+pipx upgrade sharpshooter   # or: uv tool upgrade sharpshooter
+```
+
+## Uninstall
+
+```bash
+pipx uninstall sharpshooter   # or: uv tool uninstall sharpshooter
+```
+
+## Configuration
+
+Edit `~/.sharpshooter_config` to change hotkeys or settings:
+
+```ini
+[keys]
+up = e
+down = n
+toggle_hotkeys = ?
+# ... all other keys
+
+[settings]
+show_hidden = False
+show_hotkeys = True
+```
+
+# Releasing a new version
+
+1. Merge all changes to `master` and ensure CI is green.
+2. Tag the commit:
+   ```bash
+   git tag v1.4.0
+   git push origin v1.4.0
+   ```
+3. The [Release workflow](.github/workflows/release.yml) runs the tests and creates a GitHub Release with auto-generated notes.
 
 # Technologies
 
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
 [curses](https://docs.python.org/3/library/curses.html)
-
-[pathlib](https://docs.python.org/3/library/pathlib.html)
 
 [configparser](https://docs.python.org/3/library/configparser.html)
 
@@ -53,15 +97,6 @@ or download the latest .deb from the releases.
 # Block diagram
 ![block_diagram](./docs/block_diagram.svg)
 
-# Releasing as .deb
-1. install ```sudo apt-get install build-essential devscripts debhelper debmake dh-python python3-all```
-2. ```python3 setup.py sdist```
-3. ```mv dist/sharpshooter-*.tar.gz .```
-4. ```tar -xzmf sharpshooter-*.tar.gz```
-5. cd into sharpshooter-* folder
-6. ```debmake -b":python3"```
-7. ```debuild```
-
 # Running in IntelliJ
 - add `PYTHONUNBUFFERED=1` as env variable
 - check Emulate terminal in output console
@@ -69,4 +104,4 @@ or download the latest .deb from the releases.
 # Inspired by
 [ranger](https://ranger.github.io/)
 
-[Midnight Comander](https://midnight-commander.org/)
+[Midnight Commander](https://midnight-commander.org/)
