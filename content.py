@@ -15,7 +15,7 @@ from file_system_error import FileSystemError
 
 
 class Content:
-    def __init__(self):
+    def __init__(self, config_manager=None):
         self.parent_lines = []
         self.main_lines = []
         self.child_path = ""
@@ -34,7 +34,7 @@ class Content:
         self.last_action_description = ""
         self.pending_zip_name = ""
 
-        self.config_manager = ConfigManager()
+        self.config_manager = config_manager if config_manager is not None else ConfigManager()
         self.show_hidden = self.config_manager.get_show_hidden()
         self.show_hotkeys = self.config_manager.get_show_hotkeys()
 

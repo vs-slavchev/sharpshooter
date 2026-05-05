@@ -11,14 +11,14 @@ from content import Content
 
 
 class Controller:
-    def __init__(self, standard_screen):
+    def __init__(self, standard_screen, config_manager):
         self.is_working = True
         self.standard_screen = standard_screen
         curses.curs_set(False)
         curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
 
-        self.content = Content()
-        self.input_keys = InputKeys()
+        self.content = Content(config_manager)
+        self.input_keys = InputKeys(config_manager)
         self.pane_manager = PaneManager(standard_screen)
 
         self.keys_to_actions = {
