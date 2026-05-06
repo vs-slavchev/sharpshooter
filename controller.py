@@ -44,6 +44,7 @@ class Controller:
             self.input_keys.mark_item: self.content.toggle_mark_item,
             self.input_keys.undo: self.content.undo,
             self.input_keys.toggle_hotkeys: self.content.toggle_hotkeys,
+            self.input_keys.copy_name: self.content.copy_name_to_clipboard,
         }
 
     def run(self):
@@ -84,7 +85,8 @@ class Controller:
 
     def make_new_folder(self):
         new_folder_name = self.pane_manager.render_create_folder_input_textbox(self.content.get_num_main_lines())
-        self.content.make_new_folder(new_folder_name)
+        if new_folder_name is not None:
+            self.content.make_new_folder(new_folder_name)
 
     def rename_selected(self):
         if self.content.no_main_lines_exist():
@@ -92,4 +94,5 @@ class Controller:
         new_name = self.pane_manager.render_rename_input_textbox(
             self.content.get_main_selected_line_i(),
             self.content.currently_selected_item())
-        self.content.rename(new_name)
+        if new_name is not None:
+            self.content.rename(new_name)

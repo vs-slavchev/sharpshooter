@@ -388,6 +388,14 @@ class Content:
         thread.start()
         self.describe_last_action("Unzip [{}].", self.currently_selected_item().text)
 
+    def copy_name_to_clipboard(self):
+        logging.info("action: copy name to clipboard")
+        if self.no_main_lines_exist():
+            return
+        name = self.currently_selected_item().get_clean_name()
+        file_system.copy_to_system_clipboard(name)
+        self.describe_last_action("Copied [{}] to clipboard.", name)
+
     def open_new_terminal(self):
         file_system.open_new_terminal(self.cwd)
 

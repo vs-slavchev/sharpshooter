@@ -30,6 +30,7 @@ class InputKeys:
         self.mark_item = config_manager.get_key_for('mark_item')
         self.undo = config_manager.get_key_for('undo')
         self.toggle_hotkeys = config_manager.get_key_for('toggle_hotkeys')
+        self.copy_name = config_manager.get_key_for('copy_name')
 
         self.hotkey_guide = self.generate_hotkey_guide()
 
@@ -42,6 +43,7 @@ class InputKeys:
             self.format_hotkey_description(self.copy, 'copy'),
             self.format_hotkey_description(self.cut, 'cut'),
             self.format_hotkey_description(self.paste, 'paste'),
+            self.format_hotkey_description(self.copy_name, 'copy_name'),
             self.format_hotkey_description(self.toggle_hidden, 'toggle_hidden'),
             self.format_hotkey_description(self.mark_item, 'mark_item'),
             self.format_hotkey_description(self.undo, 'undo'),
