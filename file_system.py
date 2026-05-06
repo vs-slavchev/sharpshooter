@@ -164,6 +164,23 @@ def move(old_path, new_path):
         raise FileSystemError("No permission to move")
 
 
+def copy_to_system_clipboard(text):
+    if platform_utils.platform_type() == 'macos':
+        cmd = ['pbcopy']
+    elif shutil.which('xclip'):
+        cmd = ['xclip', '-selection', 'clipboard']
+    elif shutil.which('xsel'):
+        cmd = ['xsel', '--clipboard', '--input']
+    else:
+        logging.warning("no clipboard tool found (install xclip or xsel)")
+        return
+    try:
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+        proc.communicate(text.encode())
+    except OSError:
+        logging.warning("could not copy to clipboard with: {}".format(cmd))
+
+
 def copy_paste(old_path, new_path):
     logging.info("pasting from {} to {}".format(old_path, new_path))
     try:

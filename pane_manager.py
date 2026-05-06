@@ -76,7 +76,21 @@ class PaneManager:
         edit_window.addstr(0, 0, original_name_text)
         box = Textbox(edit_window)
 
-        box.edit()
+        cancelled = False
+
+        def validator(ch):
+            nonlocal cancelled
+            if ch == 27:  # Escape — cancel the input
+                cancelled = True
+                return 7  # Ctrl+G terminates Textbox.edit()
+            if ch == 127:  # DEL sent by macOS terminal for backspace
+                return curses.KEY_BACKSPACE
+            return ch
+
+        box.edit(validator)
+
+        if cancelled:
+            return None
 
         message = box.gather()
         return str(message.strip("',/\n "))

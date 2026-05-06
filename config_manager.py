@@ -22,6 +22,7 @@ zip_unzip = z
 mark_item = m
 undo = u
 toggle_hotkeys = ?
+copy_name = y
 
 [settings]
 show_hidden = False
