@@ -3,6 +3,7 @@ from unittest import mock
 
 from content import Content
 from fs_item import FsItem
+from tests.helpers import SyncThread
 
 cwd = '/a/aa/aac/'
 parent_dir = '/a/aa/'
@@ -15,6 +16,7 @@ def mock_return_values(arg):
 
 class TestTerminalActions(unittest.TestCase):
 
+    @mock.patch('content.threading.Thread', SyncThread)
     @mock.patch('content.file_system')
     def test_open_terminal_is_called_with_cwd(self, mock_terminal):
         mock_terminal.provide_initial_cwd.return_value = cwd

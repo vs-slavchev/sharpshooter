@@ -17,6 +17,7 @@ def incurses(standard_screen, config_manager):
     app_controller = controller.Controller(standard_screen, config_manager)
     try:
         app_controller.run()
+        return app_controller.content
     except Exception as e:
         logging.exception(e)
         raise
@@ -39,7 +40,10 @@ def main():
     except ConfigError as e:
         print(f"sharpshooter: {e}", file=sys.stderr)
         sys.exit(1)
-    curses.wrapper(lambda screen: incurses(screen, config_manager))
+    content = curses.wrapper(lambda screen: incurses(screen, config_manager))
+    # a zip or unzip may still be running; say so instead of leaving what looks like a hung terminal
+    if content is not None and content.archive_busy:
+        print("sharpshooter: finishing a zip or unzip before exiting...", file=sys.stderr)
 
 
 if __name__ == '__main__':

@@ -154,6 +154,13 @@ Someone who works in a terminal and wants to move around folders and handle file
 **Scenario: Input cleanup**
 - Leading and trailing spaces, slashes, quotes, commas and newlines are removed from what I type
 
+**Scenario: Rename to a name that is taken**
+- Given an item with the new name already exists in this folder
+- When I rename
+- Then nothing changes, and the status line says the destination already exists
+- And in particular the item is never moved into a folder that has the new name
+- And changing only the letter case (for example "readme" to "README") still works on file systems that ignore case
+
 **Scenario: Rename in an empty folder**
 - Then nothing happens
 
@@ -204,18 +211,40 @@ Someone who works in a terminal and wants to move around folders and handle file
 **Scenario: Trash conventions**
 - On Linux, deleted items go to the desktop trash with the metadata file managers expect, so they can be restored from there too
 - On macOS, deleted items go to the user's Trash
-- If an item with the same name is already in the trash, the new one gets a timestamp added to its name
+- If an item with the same name is already in the trash, the copy in the trash gets a timestamp added to its name, and undo still restores it under its original name
+
+**Scenario: macOS blocks direct access to the Trash**
+- Given macOS privacy protection stops my terminal from writing to the Trash folder directly
+- When I delete
+- Then the item is moved to the Trash through Finder instead
+- And the status line says the delete cannot be undone from Sharpshooter and that I can restore the item from the Trash
 
 **Scenario: Delete fails**
 - Given I am not allowed to move the item
 - Then it stays where it is and the status line reports the problem
+
+**Scenario: Delete fails halfway**
+- Given moving the item to the trash fails after part of the work was done (for example across disks)
+- Then no stray copy is left in the trash when the original is still complete
+- And if a folder was only partly removed, its complete copy stays in the trash, restorable, and the status line says so
+
+**Scenario: Some of the marked items cannot be deleted**
+- Given I delete several marked items and some of them fail
+- Then the others are still deleted
+- And the status line says how many were deleted out of how many, and every distinct reason the rest failed
 
 **Scenario: Undo a delete**
 - Given I have deleted items during this session
 - When I press `u`
 - Then the most recently deleted item goes back to where it was
 - And the status line reads "Undone delete of [name]."
-- And pressing `u` again restores the one deleted before that, up to the last 128 deletes
+- And pressing `u` again restores the one deleted before that, up to the last 128 deletes; older ones are forgotten
+
+**Scenario: Undo is not possible**
+- Given the item is no longer in the trash (or another item has since taken its name there), or something else now exists at its original location
+- When I press `u`
+- Then nothing is overwritten and the status line explains why the item could not be restored
+- And if the item is still in the trash, it is kept for a later retry behind the older deletes, so it never blocks undoing them
 
 **Scenario: Nothing to undo**
 - Given nothing has been deleted this session
@@ -234,7 +263,7 @@ Someone who works in a terminal and wants to move around folders and handle file
 - Given a non-zip item is selected and nothing is marked
 - When I press `z`
 - Then a zip archive named after the item is created next to it in the background
-- And while it is being made, the archive appears in the list prefixed with "[zipping...]"
+- And while it is being made, the archive appears in the list prefixed with "[zipping...]", and the label disappears by itself when it is done
 - And I can keep working while it runs
 
 **Scenario: Zip marked items**
@@ -247,32 +276,75 @@ Someone who works in a terminal and wants to move around folders and handle file
 - Given a ".zip" file is selected
 - When I press `z`
 - Then it is extracted in the background into a new folder named after the archive without ".zip"
+- And if something with that name already exists, the new folder gets a timestamp added, so nothing I already have is overwritten
 
-**Scenario: One zip at a time**
-- Given an archive is still being made
+**Scenario: An archive with that name already exists**
+- Given the folder already contains an archive with the name the new one would get
+- When I zip
+- Then the existing archive is left alone and the new one gets a timestamp added to its name
+
+**Scenario: What goes into an archive**
+- Regular files and folders are stored
+- Broken links, pipes and sockets are skipped
+- Links to folders are not followed, so a link to a large or unrelated folder never ends up in the archive
+- Selecting a link to a folder, a broken link or a pipe itself and zipping it is refused with an explanation, instead of producing an empty archive
+- If something inside cannot be read, the zip fails and says what could not be read, rather than producing an incomplete archive
+
+**Scenario: Archiving fails**
+- Given zipping or unzipping fails, for example because the disk is full
+- Then the status line reports the failure as soon as it happens
+- And the half-written archive, or the half-extracted folder, is removed
+- And I can start another zip right away
+
+**Scenario: One archive at a time**
+- Given a zip or unzip is still running
 - When I press `z` again
 - Then nothing happens
 
 ## 9. Handing off to other tools
+
+**Principle: try every way, then explain**
+- Every action that relies on another program tries a list of suitable programs in order and uses the first one that works
+- Programs that are not installed, or that fail straight away, are skipped
+- Opening a file or a terminal and copying a name happen in the background, so the screen never freezes while programs are tried
+- Their output never draws over the Sharpshooter screen
+- If none of them works, the status line says so and suggests what to install or set
+- If I did something else before a background failure arrived, the status line keeps my newer message and adds the failure after it
 
 **Scenario: Open a file**
 - Given a file is selected
 - When I press Enter
 - Then it opens in the system's default application for that file type
 - And Sharpshooter stays open and responsive
+- And on Linux the desktop's opener is tried first, followed by other common openers (and the Windows opener under WSL)
+- And if no opener works, the status line names the file and suggests installing xdg-utils
 
 **Scenario: Open a terminal here**
 - When I press `t`
 - Then a new terminal window opens with the current folder as its working directory
-- And on Linux the desktop's own terminal is tried first, followed by common terminals that are installed
+- And Sharpshooter stays responsive while the terminal is open
+- And the terminal named in my `TERMINAL` environment variable is tried first
+- And on Linux the desktop's own terminal comes next, followed by common terminals, with xterm last
+- And under WSL, Windows Terminal is tried before the Linux terminals, opening a WSL shell in the current folder
 - And on macOS iTerm is used if I am already running it, and Terminal otherwise
+- And if no terminal can be opened, the status line suggests setting `TERMINAL` or installing one
 
 **Scenario: Copy a name**
 - Given an item is selected
 - When I press `y`
 - Then its name (without the trailing slash for folders) is put on the system clipboard
 - And the status line reads "Copied [name] to clipboard."
-- And on Linux this needs xclip or xsel, and if neither is installed nothing is copied
+- And the clipboard tool is chosen to suit the session: pbcopy on macOS, the Windows clipboard under WSL, wl-copy on Wayland, and xclip or xsel on X11, with the others as fallbacks
+
+**Scenario: Copy a name without a clipboard tool**
+- Given no clipboard tool works
+- When I press `y`
+- Then the name is sent to the terminal itself, which many terminals put on the clipboard (this also works over SSH and inside tmux)
+- And because this cannot be confirmed, the status line says the name was sent to the terminal clipboard and suggests installing wl-clipboard, xclip or xsel
+
+**Scenario: Copying a name fails completely**
+- Given no clipboard tool works and the terminal cannot be reached either
+- Then the status line says the name could not be copied and suggests what to install
 
 ## 10. Help and quitting
 
@@ -289,6 +361,7 @@ Someone who works in a terminal and wants to move around folders and handle file
 **Scenario: Quit**
 - When I press `q`
 - Then the program exits and the terminal goes back to normal
+- And if a zip or unzip is still running, the program says so and finishes it before exiting
 
 **Scenario: Unbound keys**
 - When I press a key that is not bound to anything
