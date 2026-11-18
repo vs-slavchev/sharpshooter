@@ -70,15 +70,33 @@ class Controller:
         self.standard_screen.refresh()
         self.pane_manager.refresh_panes()
 
+        # writing to the terminal is only safe here, between screen updates on the main thread
+        if self.content.send_pending_osc52():
+            return  # redraw to show the result
         self.process_input()
 
     def process_input(self):
-        input_key = self.standard_screen.getkey()
+        input_key = self.wait_for_key()
+        if input_key is None:
+            return  # background work changed something: just redraw
         logging.info("input: {}".format(input_key))
 
         if input_key in self.keys_to_actions:
             action = self.keys_to_actions.get(input_key)
             action()
+
+    def wait_for_key(self):
+        """Return the next key, or None when background work finished and the screen should be redrawn."""
+        while True:
+            # while background work (zip, launching programs) runs, wake up regularly so its result shows
+            # without a key press; otherwise just wait for the next key
+            self.standard_screen.timeout(100 if self.content.background_work_pending() else -1)
+            try:
+                return self.standard_screen.getkey()
+            except curses.error:  # timed out without a key
+                if self.content.background_changed.is_set():
+                    self.content.background_changed.clear()
+                    return None
 
     def quit(self):
         self.is_working = False

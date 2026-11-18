@@ -4,9 +4,10 @@
 
 import logging
 import file_system
+import platform_utils
 import shutil
 import threading
-from queue import LifoQueue
+from collections import deque
 
 from config_manager import ConfigManager
 from fs_item import FsItem
@@ -29,10 +30,23 @@ class Content:
         self.copy_removes_source = False
 
         self.marked_item_indices = []
-        self.deleted_original_file_paths_queue = LifoQueue(maxsize=128)
+        # newest last; once full, the oldest delete is forgotten
+        self.trash_undo_stack = deque(maxlen=128)
+        # set by background work when it finishes, so the UI redraws without waiting for a key
+        self.background_changed = threading.Event()
+        self._background_tasks = 0
+        self._background_lock = threading.Lock()
+        # the status line is written by background threads too
+        self._status_lock = threading.RLock()
+        # a name to put on the clipboard via the terminal, written by the main thread between screen updates
+        self.pending_osc52_text = None
 
-        self.last_action_description = ""
+        # the status line: the user's latest action, plus a background result that arrived after it
+        self._user_status = ""
+        self._background_status = ""
         self.pending_zip_name = ""
+        # only one zip or unzip at a time
+        self.archive_busy = False
 
         self.config_manager = config_manager if config_manager is not None else ConfigManager()
         self.show_hidden = self.config_manager.get_show_hidden()
@@ -219,15 +233,23 @@ class Content:
         if self.currently_selected_item().is_folder():
             self.open_child()
         else:
-            file_system.open_file(self.child_path)
+            self.run_in_background("Could not open [{}].".format(self.file_name_from_path(self.child_path)),
+                                   file_system.open_file, self.child_path)
 
     def undo(self):
         logging.info("action: undo")
-        if not self.deleted_original_file_paths_queue.empty():
-            file_path = self.deleted_original_file_paths_queue.get()
-            file_name = self.file_name_from_path(file_path)
-            file_system.restore_from_trash(file_name, file_path)
+        if not self.trash_undo_stack:
+            return
+        trashed_name, original_path = self.trash_undo_stack.pop()
+        file_name = self.file_name_from_path(original_path)
+        try:
+            file_system.restore_from_trash(trashed_name, original_path)
             self.describe_last_action("Undone delete of [{}].", file_name)
+        except FileSystemError as e:
+            if file_system.is_in_trash(trashed_name, original_path):
+                # keep it for a later retry, but at the bottom so it does not block undoing older deletes
+                self.trash_undo_stack.appendleft((trashed_name, original_path))
+            self.describe_last_action("Could not restore [{}]: {}.", file_name, e.message)
 
     def delete(self):
         logging.info("action: delete")
@@ -235,23 +257,46 @@ class Content:
             return
         if self.exist_marked_items():
             paths_to_delete = self.get_paths_of_marked_items()
-            for path in paths_to_delete:
-                try:
-                    self.save_deletion_info(file_system.delete(path))
-                    self.describe_last_action("Deleted {} files.", len(paths_to_delete))
-                except FileSystemError as e:
-                    self.describe_last_action(e.message + " {} files.", len(paths_to_delete))
         else:
+            paths_to_delete = [self.child_path]
+
+        errors = []
+        deleted = 0
+        all_undoable = True
+        for path in paths_to_delete:
             try:
-                self.save_deletion_info(file_system.delete(self.child_path))
-                self.describe_last_action("Deleted [{}].", self.file_name_from_path(self.child_path))
+                deletion_info = file_system.delete(path)
             except FileSystemError as e:
-                self.describe_last_action(e.message + " [{}].", self.file_name_from_path(self.child_path))
+                if e.message not in errors:
+                    errors.append(e.message)
+                continue
+            deleted += 1
+            if deletion_info is None:
+                all_undoable = False
+            else:
+                self.save_deletion_info(deletion_info)
+
+        if len(paths_to_delete) == 1:
+            what = "[{}]".format(self.file_name_from_path(paths_to_delete[0]))
+        elif errors:
+            what = "{} of {} files".format(deleted, len(paths_to_delete))
+        else:
+            what = "{} files".format(deleted)
+        finder_note = "" if all_undoable else " (via Finder: restore from the Trash, undo is not available)"
+
+        reasons = "; ".join(errors)
+        if not errors:
+            self.describe_last_action("Deleted {}{}.", what, finder_note)
+        elif deleted == 0:
+            self.describe_last_action("{}: {}.", reasons, what if len(paths_to_delete) == 1 else "no files deleted")
+        else:
+            self.describe_last_action("Deleted {}{}; the rest failed: {}.", what, finder_note, reasons)
         self.unmark_any_marked_items()
         self.main_pane_selected_line_i = min(self.main_pane_selected_line_i, len(self.main_lines) - 1)
 
-    def save_deletion_info(self, deleted_path):
-        self.deleted_original_file_paths_queue.put(deleted_path)
+    def save_deletion_info(self, deletion_info):
+        """deletion_info is (name in trash, original path), as returned by file_system.delete."""
+        self.trash_undo_stack.append(deletion_info)
 
     def make_new_folder(self, new_folder_name):
         logging.info("action: make new folder")
@@ -262,7 +307,7 @@ class Content:
             self.unmark_any_marked_items()
             self.describe_last_action("Made new folder [{}].", new_folder_name)
         except FileSystemError as e:
-            self.describe_last_action(e.message + ": [{}].", new_folder_name)
+            self.describe_last_action("{}: [{}].", e.message, new_folder_name)
 
     def rename(self, new_name):
         logging.info("action: rename")
@@ -271,10 +316,10 @@ class Content:
         old_path = self.to_path(self.currently_selected_item().text)
         new_path = self.to_path(new_name)
         try:
-            file_system.move(old_path, new_path)
+            file_system.rename(old_path, new_path)
             self.describe_last_action("Renamed [{}] to [{}].", self.file_name_from_path(old_path), new_name)
         except FileSystemError as e:
-            self.describe_last_action(e.message + " [{}].", self.file_name_from_path(old_path))
+            self.describe_last_action("Could not rename [{}]: {}.", self.file_name_from_path(old_path), e.message)
 
     def copy(self):
         logging.info("action: copy")
@@ -311,7 +356,7 @@ class Content:
             for path in self.paths_to_copy:
                 file_system_function(path, folder_to_paste_in)
         except FileSystemError as e:
-            self.describe_last_action(e.message + " {} files.", len(self.paths_to_copy))
+            self.describe_last_action("Could not paste {} files: {}.", len(self.paths_to_copy), e.message)
             self.paths_to_copy = []
         else:
             self.recalculate_content()
@@ -333,7 +378,7 @@ class Content:
         logging.info("action: zip unzip")
         if self.no_main_lines_exist():
             return
-        if not self.pending_zip_name == "":
+        if self.archive_busy:
             return
 
         format_abbreviation = ".zip"
@@ -347,57 +392,154 @@ class Content:
 
     def zip_selected_item(self):
         logging.info("action: zip selected")
-        path_to_process = self.to_path(self.currently_selected_item().text)
-        zip_file_name = self.currently_selected_item().get_clean_name()
-        self.perform_zip(path_to_process, zip_file_name)
-        self.describe_last_action("Zip [{}].", self.currently_selected_item().text)
+        selected = self.currently_selected_item()
+        path_to_process = self.to_path(selected.text)
+        self.describe_last_action("Zip [{}].", selected.text)
+        # a folder's contents go at the archive root, so unzipping recreates the folder
+        self.perform_zip(selected.get_clean_name(), [path_to_process], contents_only=selected.is_folder())
 
     def zip_marked_items(self):
         logging.info("action: zip marked")
-        temp_marked_files_folder_name = 'temp_marked_files_folder/'
-        temp_folder_path = self.to_path(temp_marked_files_folder_name)
-        file_system.make_new_folder(temp_folder_path)
-        for marked_path in self.get_paths_of_marked_items():
-            file_system.copy_paste(marked_path, temp_folder_path)
-        path_to_process = temp_folder_path
-        zip_file_name = 'archive_{}'.format(utility.now())
-        self.perform_zip(path_to_process, zip_file_name)
-        file_system.permanent_delete(temp_folder_path)
-
         self.describe_last_action("Zip {} files.", len(self.marked_item_indices))
+        self.perform_zip('archive_{}'.format(utility.now()), self.get_paths_of_marked_items())
         self.unmark_any_marked_items()
 
-    def perform_zip(self, path_to_process, zip_file_name):
-        thread = threading.Thread(target=self.zip_in_thread,
-                                  args=(zip_file_name, path_to_process,))
-        thread.start()
-
-    def zip_in_thread(self, zip_file_name, path_to_process):
+    def perform_zip(self, wanted_name, paths, contents_only=False):
+        # never overwrite an existing archive: claim a free name, so cleaning up after a failure is always safe
+        try:
+            zip_file_name = file_system.claim_unique_name(self.cwd, wanted_name, '.zip')
+        except FileSystemError as e:
+            self.describe_last_action("Could not zip: {}.", e.message)
+            return
+        self.archive_busy = True
         self.pending_zip_name = zip_file_name
-        # the resulting file will have .zip appended to its name by the util function
-        shutil.make_archive(self.to_path(zip_file_name), 'zip', path_to_process)
-        self.pending_zip_name = ""
+        archive_path = self.to_path(zip_file_name + '.zip')
+
+        def remove_partial_archive():
+            file_system.remove_file(archive_path)
+
+        def finished():
+            self.pending_zip_name = ""
+            self.archive_busy = False
+
+        self.run_in_background("Zip of [{}] failed.".format(zip_file_name),
+                               file_system.zip_items, paths, archive_path, contents_only,
+                               on_failure=remove_partial_archive, on_finish=finished)
 
     def unzip(self, format_abbreviation):
         logging.info("action: unzip")
         currently_selected_text = self.currently_selected_item().text
         path_to_process = self.to_path(currently_selected_text)
-        folder_to_unpack_in = self.to_path(currently_selected_text[:-len(format_abbreviation)])
-        thread = threading.Thread(target=shutil.unpack_archive,
-                                  args=(path_to_process, folder_to_unpack_in, 'zip'))
-        thread.start()
-        self.describe_last_action("Unzip [{}].", self.currently_selected_item().text)
+        # always a new folder, claimed now: nothing the user already has is overwritten, a second unzip cannot
+        # pick the same folder, and a failure can be cleaned up
+        try:
+            folder_name = file_system.claim_unique_name(
+                self.cwd, currently_selected_text[:-len(format_abbreviation)], make_folder=True)
+        except FileSystemError as e:
+            self.describe_last_action("Could not unzip [{}]: {}.", currently_selected_text, e.message)
+            return
+        folder_to_unpack_in = self.to_path(folder_name)
+        self.archive_busy = True
+
+        def finished():
+            self.archive_busy = False
+
+        def remove_partial_folder():
+            file_system.permanent_delete(folder_to_unpack_in)
+
+        self.describe_last_action("Unzip [{}] into [{}/].", currently_selected_text, folder_name)
+        self.run_in_background("Unzip of [{}] failed.".format(currently_selected_text),
+                               shutil.unpack_archive, path_to_process, folder_to_unpack_in, 'zip',
+                               on_failure=remove_partial_folder, on_finish=finished)
+
+    def run_in_background(self, failure_text, work, *args, on_success=None, on_failure=None, on_finish=None):
+        """Run work(*args) in a thread. A failure is shown on the status line instead of being lost:
+        a FileSystemError's own message, otherwise failure_text. on_success gets work's result."""
+        with self._status_lock:
+            status_when_started = self._user_status
+
+        def task():
+            try:
+                result = work(*args)
+                if on_success is not None:
+                    on_success(result, status_when_started)
+            except Exception as e:
+                if isinstance(e, FileSystemError):
+                    failure = e.message + "."
+                else:
+                    logging.exception(e)
+                    failure = failure_text
+                self.report_from_background(status_when_started, failure)
+                if on_failure is not None:
+                    try:
+                        on_failure()
+                    except Exception as cleanup_error:  # never let cleanup print over the screen
+                        logging.exception(cleanup_error)
+            finally:
+                if on_finish is not None:
+                    on_finish()
+                # flag first, then count down: the input loop never sees "nothing running, nothing changed"
+                # while a result is still waiting to be drawn
+                self.background_changed.set()
+                with self._background_lock:
+                    self._background_tasks -= 1
+
+        with self._background_lock:
+            self._background_tasks += 1
+        threading.Thread(target=task).start()
+
+    def report_from_background(self, status_when_started, text):
+        """Show text, but if the user did something else meanwhile keep that newer message and add text after it."""
+        with self._status_lock:
+            if self._user_status and self._user_status != status_when_started:
+                self._background_status = text
+            else:
+                self._user_status, self._background_status = text, ""
+
+    @property
+    def last_action_description(self):
+        with self._status_lock:
+            if self._background_status:
+                return "{} | {}".format(self._user_status, self._background_status)
+            return self._user_status
+
+    def background_work_pending(self):
+        """True while background work runs or has finished without the screen being redrawn yet."""
+        with self._background_lock:
+            return self._background_tasks > 0 or self.background_changed.is_set()
 
     def copy_name_to_clipboard(self):
         logging.info("action: copy name to clipboard")
         if self.no_main_lines_exist():
             return
         name = self.currently_selected_item().get_clean_name()
-        file_system.copy_to_system_clipboard(name)
-        self.describe_last_action("Copied [{}] to clipboard.", name)
+
+        def copied(confirmed, status_when_started):
+            if confirmed:
+                self.report_from_background(status_when_started, "Copied [{}] to clipboard.".format(name))
+            else:
+                self.pending_osc52_text = name  # the main thread sends it to the terminal
+
+        self.describe_last_action("Copying [{}]...", name)
+        self.run_in_background("Could not copy [{}].".format(name), file_system.copy_with_clipboard_tools, name,
+                               on_success=copied)
+
+    def send_pending_osc52(self):
+        """Main thread only, between screen updates. Returns True if the status line changed."""
+        name = self.pending_osc52_text
+        if name is None:
+            return False
+        self.pending_osc52_text = None
+        try:
+            file_system.copy_via_osc52(name)
+            self.describe_last_action("Sent [{}] to the terminal clipboard; if it is missing: {}.",
+                                      name, platform_utils.clipboard_install_hint())
+        except FileSystemError as e:
+            self.describe_last_action("Could not copy [{}]: {}.", name, e.message)
+        return True
 
     def open_new_terminal(self):
-        file_system.open_new_terminal(self.cwd)
+        self.run_in_background("Could not open a terminal.", file_system.open_new_terminal, self.cwd)
 
     def toggle_mark_item(self):
         logging.info("action: mark item")
@@ -446,8 +588,12 @@ class Content:
     def file_name_from_path(self, full_path):
         return self.to_path_elements(full_path)[-1]
 
-    def describe_last_action(self, pattern, value, second_value=""):
-        self.last_action_description = pattern.format(value, second_value)
+    def describe_last_action(self, pattern, *values):
+        """pattern is always a fixed string from this file; anything variable (file names, error messages)
+        must be passed in values, so braces in it can never break the formatting."""
+        with self._status_lock:
+            self._user_status, self._background_status = pattern.format(*values), ""
 
     def clear_last_action_description(self):
-        self.last_action_description = ""
+        with self._status_lock:
+            self._user_status, self._background_status = "", ""
